@@ -1,0 +1,22 @@
+# Build folders
+[Bb]in/
+[Oo]bj/
+[Tt]mp/
+
+# IDE files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.idea/
+*.userprefs
+*.csproj.user
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# User specific files
+*.rsuser

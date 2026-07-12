@@ -1,0 +1,274 @@
+<UserControl x:Class="Stormbreaker.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:views="clr-namespace:Stormbreaker.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1000">
+
+    <UserControl.Resources>
+        <views:BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <views:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVis"/>
+
+        <!-- Reusable Glass Card Panel Style -->
+        <Style x:Key="GlassPanel" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource BgCardBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource GlassBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="17"/>
+            <Setter Property="Margin" Value="0,0,0,14"/>
+        </Style>
+
+        <!-- Small Flat Button for Quick Select -->
+        <Style x:Key="QuickSelectButton" TargetType="Button">
+            <Setter Property="Background" Value="#0DFFFFFF"/>
+            <Setter Property="BorderBrush" Value="{StaticResource GlassBorderBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="12"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1AFFFFFF"/>
+                    <Setter Property="BorderBrush" Value="{StaticResource GlassBorderLightBrush}"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Page title -->
+            <RowDefinition Height="*"/>    <!-- Settings contents -->
+        </Grid.RowDefinitions>
+
+        <!-- Page Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <ContentControl Content="{StaticResource IconSettings}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentCyanBrush}" Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="Settings &amp; Backends" FontSize="19" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                </StackPanel>
+                <TextBlock Text="Configure local AI parameters, endpoints and forensic extraction engines" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,0"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- 2-Column Contents Grid -->
+        <Grid Grid.Row="1" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- LEFT COLUMN: Ollama Configuration -->
+            <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                <Border Style="{StaticResource GlassPanel}">
+                    <DockPanel>
+                        <!-- Header -->
+                        <Grid DockPanel.Dock="Top" Margin="0,0,0,16">
+                            <StackPanel Orientation="Horizontal">
+                                <ContentControl Content="{StaticResource IconCpu}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentCyanBrush}" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Ollama Integration" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Form contents -->
+                        <StackPanel>
+                            <!-- API Endpoint -->
+                            <TextBlock Text="Ollama API Endpoint" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,6"/>
+                            <Border BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="1" Background="#40000000" CornerRadius="8" Padding="12,8" Margin="0,0,0,14">
+                                <TextBox Background="Transparent" BorderThickness="0" Foreground="White" FontSize="13" VerticalAlignment="Center" CaretBrush="{StaticResource AccentCyanBrush}"
+                                         Text="{Binding OllamaEndpoint, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Border>
+
+                            <!-- Model Name -->
+                            <TextBlock Text="Model Name" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,6"/>
+                            <Border BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="1" Background="#40000000" CornerRadius="8" Padding="12,8" Margin="0,0,0,8">
+                                <TextBox Background="Transparent" BorderThickness="0" Foreground="White" FontSize="13" VerticalAlignment="Center" CaretBrush="{StaticResource AccentCyanBrush}"
+                                         Text="{Binding SelectedModel, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Border>
+
+                            <!-- Spacing -->
+                            <Border Height="4"/>
+
+                            <!-- Connection Testing -->
+                            <Border BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="1" Background="#14FFFFFF" CornerRadius="8" Padding="12" Margin="0,0,0,16">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Test Action -->
+                                    <Button Grid.Column="0" Style="{StaticResource BtnGlass}" Content="Test Connection" HorizontalAlignment="Left" Padding="14,6"
+                                            Command="{Binding TestOllamaCommand}"/>
+
+                                    <!-- Status Message Grid -->
+                                    <Grid Grid.Column="1" VerticalAlignment="Center">
+                                        <!-- Test status: ok -->
+                                        <Border CornerRadius="10" Padding="8,3" Background="#1F22c55e" BorderBrush="#5122c55e" BorderThickness="1">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ConnectionStatusState}" Value="ok">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="SUCCESS" FontSize="9.5" FontWeight="Bold" Foreground="{StaticResource AccentGreenBrush}"/>
+                                        </Border>
+                                        
+                                        <!-- Test status: bad -->
+                                        <Border CornerRadius="10" Padding="8,3" Background="#1Fef4444" BorderBrush="#51ef4444" BorderThickness="1">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ConnectionStatusState}" Value="bad">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="FAILED" FontSize="9.5" FontWeight="Bold" Foreground="{StaticResource AccentRedBrush}"/>
+                                        </Border>
+                                        
+                                        <!-- Test status: idle -->
+                                        <TextBlock Text="Not tested" FontSize="11.5" Foreground="{StaticResource TextMutedBrush}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ConnectionStatusState}" Value="idle">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+
+                            <!-- Feedback message text -->
+                            <TextBlock Text="{Binding ConnectionStatusText, FallbackValue='Verify connection to local Ollama API daemon.'}" 
+                                       FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16" TextWrapping="Wrap"/>
+
+                            <!-- Save Configuration -->
+                            <Button Style="{StaticResource BtnPrimary}" Content="Save configuration" Command="{Binding SaveSettingsCommand}" HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- RIGHT COLUMN: DFIR Backend & About -->
+            <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                <!-- DFIR Backend Parameters -->
+                <Border Style="{StaticResource GlassPanel}">
+                    <DockPanel>
+                        <!-- Header -->
+                        <Grid DockPanel.Dock="Top" Margin="0,0,0,16">
+                            <StackPanel Orientation="Horizontal">
+                                <ContentControl Content="{StaticResource IconDatabase}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentPurpleBrush}" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="DFIR Backend Status" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel>
+                            <!-- Evtx parser status -->
+                            <Grid Margin="0,0,0,12">
+                                <StackPanel>
+                                    <TextBlock Text="EVTX Log Extractor" FontSize="12" FontWeight="Bold" Foreground="White"/>
+                                    <TextBlock Text="Rust FastEvtx Parser · status: active" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <Border Background="#1F22c55e" CornerRadius="8" Padding="6,2" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                    <TextBlock Text="ONLINE" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentGreenBrush}"/>
+                                </Border>
+                            </Grid>
+
+                            <!-- Mft parser status -->
+                            <Grid Margin="0,0,0,12">
+                                <StackPanel>
+                                    <TextBlock Text="$MFT Journal Extractor" FontSize="12" FontWeight="Bold" Foreground="White"/>
+                                    <TextBlock Text="GoMft Parser · status: active" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <Border Background="#1F22c55e" CornerRadius="8" Padding="6,2" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                    <TextBlock Text="ONLINE" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentGreenBrush}"/>
+                                </Border>
+                            </Grid>
+
+                            <!-- Custody ledger status -->
+                            <Grid Margin="0,0,0,12">
+                                <StackPanel>
+                                    <TextBlock Text="Evidence Chain-of-Custody" FontSize="12" FontWeight="Bold" Foreground="White"/>
+                                    <TextBlock Text="Hash-chained ledger status: verified" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <Border Background="#1F22c55e" CornerRadius="8" Padding="6,2" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                    <TextBlock Text="SECURED" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentGreenBrush}"/>
+                                </Border>
+                            </Grid>
+
+                            <!-- Volatility wrapper status -->
+                            <Grid>
+                                <StackPanel>
+                                    <TextBlock Text="Memory Volatility3 Wrapper" FontSize="12" FontWeight="Bold" Foreground="White"/>
+                                    <TextBlock Text="Status: idle · waiting for memory image" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <Border Background="#1F3b82f6" CornerRadius="8" Padding="6,2" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                    <TextBlock Text="STANDBY" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentBlueBrush}"/>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+
+                <!-- About Card -->
+                <Border Style="{StaticResource GlassPanel}" Margin="0">
+                    <DockPanel>
+                        <!-- Header -->
+                        <Grid DockPanel.Dock="Top" Margin="0,0,0,14">
+                            <StackPanel Orientation="Horizontal">
+                                <ContentControl Content="{StaticResource IconInfo}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource TextSecondaryBrush}" Width="15" Height="15" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="About Stormbreaker Console" FontSize="13" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel>
+                            <TextBlock Text="Stormbreaker DFIR Security Suite" FontSize="12" FontWeight="Bold" Foreground="White"/>
+                            <TextBlock Text="Version: v1.2.0-beta (Core Edition)" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                            <TextBlock Text="License: Proprietary · Incident Response Core Authorized Use" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,2,0,0"/>
+                            
+                            <Border Background="#1FFFFFFF" Height="1" Margin="0,12"/>
+                            
+                            <TextBlock Text="Local Data Directory" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,4"/>
+                            <TextBlock Text="C:\Users\yoand\.gemini\antigravity\brain" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" FontFamily="{StaticResource FontMono}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </Grid>
+    
+</UserControl>
