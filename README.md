@@ -1,39 +1,39 @@
-# ⚡ Stormbreaker — DFIR Advanced Analysis Console
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Platform: WPF .NET](https://img.shields.io/badge/Platform-WPF%20%7C%20.NET%208.0--windows-blueviolet.svg)](Stormbreaker)
+# ⚡ Stormbreaker — Consola de Análisis Forense Avanzado DFIR
+[![License: MIT](https://img.shields.io/badge/Licencia-MIT-blue.svg)](LICENSE)
+[![Platform: WPF .NET](https://img.shields.io/badge/Plataforma-WPF%20%7C%20.NET%208.0--windows-blueviolet.svg)](Stormbreaker)
 [![Att&ck: MITRE](https://img.shields.io/badge/ATT%26CK-MITRE%20Mapped-red.svg)](https://attack.mitre.org)
 
-**Stormbreaker** is a professional-grade, high-performance desktop Incident Response (IR) and Digital Forensics (DFIR) triage console built on WPF and .NET 8.0. It acts as the native Windows client for the **Muninn DFIR Suite**, designed to parse, correlate, and visualize Windows event logs, Registry hives, USN Journals, and NTFS MFT records. 
+**Stormbreaker** es una consola de triaje y respuesta ante incidentes (IR / DFIR) de alto rendimiento para escritorio, desarrollada en WPF y .NET 8.0. Actúa como cliente nativo de Windows para la suite **Muninn DFIR Suite**, permitiendo parsear, correlacionar y visualizar registros de eventos de Windows, colmenas del Registro, USN Journal y registros NTFS MFT.
 
-Designed with a premium dark glassmorphism (Aero/Mica-inspired) aesthetic, Stormbreaker integrates local LLM assistance (via Ollama) to stream contextual analysis and build attack-chain correlation timelines, mapping indicators directly to the **MITRE ATT&CK®** framework.
-
----
-
-## 🛡️ Core Capabilities
-
-*   **⚡ Live Super-Timeline & Triage:** Correlate event logs (Security, Sysmon, PowerShell, Defender) alongside offline NTFS MFT records.
-*   **🕵️ NTFS Timestomp Detector:** Automate identification of backdated timestamps by comparing `$STANDARD_INFORMATION` (`$SI`) against `$FILE_NAME` (`$FN`) attributes.
-*   **🔀 Multipurpose Attack Graph:** Build PID/Process parent-child correlation chains to identify suspicious LOLBins and lateral movement patterns.
-*   **🤖 Local AI Copilot:** Secure offline triage reports streaming token-by-token directly from local instances of **Ollama** (e.g., Llama 3.1, Mistral, Qwen 2.5) without leaking sensitive forensic data to cloud providers.
-*   **📊 Threat Intelligence Mapping:** Direct translation of logs and command execution args into MITRE ATT&CK techniques.
-*   **📥 Forensic Evidence Dropzone:** Simulated drag-and-drop ingestion of artifacts with a modular structure designed for raw parsers.
-*   **📁 Export Engine:** Generate executive summaries in Markdown, structured IOC sheets in JSON, or formatted forensic reports in PDF.
+Diseñada bajo una estética oscura premium de glassmorfismo (inspirada en Aero y Mica de Windows 11), Stormbreaker integra asistencia de IA local (a través de Ollama) para transmitir análisis en tiempo real y construir líneas de tiempo de la cadena de ataque mapeadas directamente al marco de referencia **MITRE ATT&CK®**.
 
 ---
 
-## 🎨 Premium Design System
+## 🛡️ Capacidades Principales
 
-Stormbreaker implements a custom design system with native WPF styles:
-*   **Glassmorphic Surfaces:** Curated colors in `oklch`/hex equivalents (`#BF0A0E1A` for deep panels, `#0AFFFFFF` for semi-transparent grids).
-*   **Collapsible Sidebar Navigation:** Interactive left-aligned sidebar with spring-loaded width animations ($70\text{px} \leftrightarrow 220\text{px}$) powered by WPF Storyboards, using dynamic icons and conditional badges.
-*   **Dynamic Responsive Grid Layouts:** Responsive viewports, text trimming, and proportional grids ensuring flawless layouts on High-DPI and ultra-wide screens.
-*   **Modern Typography:** Styled using high-legibility sans-serif fonts for control panels and `JetBrains Mono`/`Consolas` for raw event details.
+*   **⚡ Super-Línea de Tiempo Forense:** Correlaciona registros de eventos (Security, Sysmon, PowerShell, Defender) junto con entradas fuera de línea de la tabla NTFS MFT.
+*   **🕵️ Detector de Timestomp:** Identifica automáticamente manipulación de marcas de tiempo mediante la comparación de atributos `$STANDARD_INFORMATION` (`$SI`) y `$FILE_NAME` (`$FN`).
+*   **🔀 Gráfico de Correlación de Ataque:** Reconstruye cadenas parent-child de procesos/PID para cazar LOLBins y técnicas de movimiento lateral.
+*   **🤖 Copiloto de IA Local:** Generación de informes completamente fuera de línea a través de **Ollama** (ej. Llama 3.1, Mistral, Qwen 2.5), garantizando la privacidad y evitando fugas de datos forenses a la nube.
+*   **📊 Mapeo MITRE ATT&CK:** Traducción directa de logs e instrucciones ejecutadas a identificadores de técnicas ofensivas.
+*   **📥 Zona de Ingesta Forense:** Simulación visual de drag-and-drop de evidencias lista para la conexión con parsers reales.
+*   **📁 Motor de Exportación:** Reportes listos para analistas exportables en Markdown, IOCs en formato JSON y reportes formateados en PDF.
 
 ---
 
-## 📂 Project Architecture
+## 🎨 Diseño Visual Premium
 
-The desktop application is structured under the MVVM (Model-View-ViewModel) pattern:
+Stormbreaker implementa estilos de control nativos WPF optimizados:
+*   **Superficies Glassmorphism:** Paleta de colores personalizada mediante equivalentes oklch/hex (`#BF0A0E1A` para paneles profundos y `#0AFFFFFF` para rejillas translúcidas).
+*   **Menú Lateral Colapsable:** Panel de navegación izquierdo interactivo con transiciones de ancho fluidas ($70\text{px} \leftrightarrow 220\text{px}$) mediante Storyboards de WPF.
+*   **Diseño Totalmente Responsivo:** Autoajuste y recorte de texto en celdas críticas (`TextTrimming="CharacterEllipsis"`) y rejillas proporcionales estrella (`*`) que evitan desbordamientos en pantallas ultra-anchas.
+*   **Tipografía de Alta Legibilidad:** Inter para controles generales y `JetBrains Mono` / `Consolas` para la visualización de datos forenses crudos.
+
+---
+
+## 📂 Arquitectura del Proyecto
+
+El desarrollo sigue el patrón de arquitectura MVVM (Model-View-ViewModel):
 
 ```
 App.xaml / MainWindow.xaml
@@ -45,78 +45,77 @@ App.xaml / MainWindow.xaml
       │    ├── TimelineView.xaml
       │    ├── CorrelationView.xaml
       │    └── AiView.xaml
-      ├── Forensic Models
-      └── Converters & Styles
+      ├── Modelos Forenses
+      └── Conversores y Estilos
 ```
 
-### Key Components
+### Componentes Clave
 
-1.  **MainWindow.xaml:** Root layout host containing the collapsible sidebar border, logo/header alignments, view-switching state converters, and overlay modals.
-2.  **ViewModels/MainViewModel.cs:** Coordinates active view states, initiates local scanning simulators, handles Ollama communication endpoints, and processes UI toggle actions.
-3.  **Views/:** Self-contained forensic user controls:
-    *   `DashboardView`: Visualizes event counts, threat severity donuts, and timeline charts.
-    *   `EventsView`: Live-filterable grid featuring full event details and MITRE badges.
-    *   `MftView`: Interactive NTFS MFT record comparison table.
-    *   `CorrelationView`: Detailed multi-stage attack timeline.
-    *   `AiView`: LLM prompt config, query stream, and real-time report renderer.
-4.  **Models/:** Standardized data models (`ForensicEvent`, `MftRecord`, `IocRecord`, etc.) enabling seamless binding and formatting.
+1.  **MainWindow.xaml:** Layout raíz que contiene el panel de navegación colapsable animado, la alineación dinámica del encabezado, conversores de vista y modales interactivos.
+2.  **ViewModels/MainViewModel.cs:** Coordina la vista activa, gestiona el hilo de streaming de Ollama, orquesta los simuladores de escaneo rápido y expone los comandos de interfaz.
+3.  **Views/:** Módulos forenses autocontenidos:
+    *   `DashboardView`: Panel gráfico con KPIs, donuts de severidad y actividad de artefactos.
+    *   `EventsView`: Rejilla filtrable y expandible con metadatos de eventos y técnicas MITRE.
+    *   `MftView`: Tabla de auditoría NTFS MFT con alertas automáticas de timestomping.
+    *   `CorrelationView`: Reconstrucción de la cadena de ataque en fases lógicas.
+    *   `AiView`: Panel interactivo de Ollama con streaming de tokens en tiempo real.
+4.  **Models/:** Estructuras de datos normalizadas (`ForensicEvent`, `MftRecord`, `IocRecord`, etc.) para data-binding.
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Instalación y Uso
 
-### Prerequisites
+### Requisitos
 
-*   **.NET 8.0 SDK** or higher.
-*   Windows 10/11 (64-bit).
-*   *Optional:* A local instance of **Ollama** running.
+*   **.NET 8.0 SDK** o superior.
+*   Microsoft Windows 10/11 (64-bit).
+*   *Opcional:* Una instancia local de **Ollama** activa.
 
-### Compilation and Launch
+### Compilación y Ejecución
 
-1. Clone or download the repository.
-2. Open your terminal (PowerShell or CMD) in the project directory:
+1. Abre tu terminal de Windows (CMD o PowerShell) en la raíz del proyecto:
    ```cmd
    cd "E:\000Yoandy\Proyecto Stormbreaker DFIR\Stormbreaker"
    ```
-3. Run the following command to build and launch the console:
+2. Ejecuta el compilador y lanza el binario:
    ```cmd
    dotnet run
    ```
 
 ---
 
-## 🤖 Configuring Local AI (Ollama)
+## 🤖 Configuración de la IA Local (Ollama)
 
-To run local LLM analysis without sending forensic data online, configure Ollama to accept requests from your desktop environment:
+Para habilitar el streaming de triaje forense sin enviar datos a internet:
 
-1. Stop any running Ollama GUI app in your system tray.
-2. Launch Ollama from a command prompt with CORS origins enabled:
+1. Cierra la aplicación de bandeja (GUI) de Ollama.
+2. Levanta el servicio desde terminal habilitando cabeceras CORS:
    ```cmd
    set OLLAMA_ORIGINS=*
    ollama serve
    ```
-3. Pull your preferred analysis model (we recommend `llama3.1:8b` or `qwen2.5:7b`):
+3. Descarga el modelo de análisis recomendado (ej. `llama3.1:8b` o `qwen2.5:7b`):
    ```cmd
    ollama pull llama3.1:8b
    ```
-4. Open Stormbreaker, navigate to **Settings** (bottom left), enter your Ollama endpoint (`http://localhost:11434`), select your model, and click **Test Connection**.
-5. Go to the **AI Analyst** view and click **Analyze Evidence** to watch the streaming analysis begin!
+4. En Stormbreaker, ve a **Ajustes** (esquina inferior izquierda), ingresa el endpoint local (`http://localhost:11434`), selecciona tu modelo y pulsa **Probar Conexión**.
+5. Navega a **Analista de IA** y haz clic en **Analizar Evidencia** para ver el informe redactándose en vivo.
 
 ---
 
-## 📄 License & Attribution
+## 📬 Contacto y Conexión
 
-Stormbreaker is released under the **MIT License**. It is tailored for:
-*   🔴 **Red Teams & Pentesters:** For correlating artifact trails left during simulated attacks and analyzing detection gaps.
-*   🔵 **Blue Teams & DFIR Responders:** For rapid log triage, MFT artifact timelines, and automated local-AI summaries.
-*   🟣 **Purple Teams:** To map attack chains side-by-side with MITRE mappings to build robust detection rules.
-
-_Designed and developed as part of the Muninn DFIR Suite._
-
----
-
-## 📬 Contact & Connect
-
-*   **Author:** Yoandy Ramirez Delgado
+*   **Autor:** Yoandy Ramirez Delgado
 *   **Email:** [yoandyramirezdelgdo@gmail.com](mailto:yoandyramirezdelgdo@gmail.com)
 *   **LinkedIn:** [Yoandy Ramirez](https://www.linkedin.com/in/yoandyrd92)
+
+---
+
+## 📄 Licencia
+
+Stormbreaker está publicado bajo la licencia **MIT**. Diseñado para:
+*   🔴 **Red Teams y Pentesters:** Correlacionar marcas de alteración forense y verificar qué rastros dejan los LOLBins.
+*   🔵 **Blue Teams y Analistas DFIR:** Acelerar el triaje de logs de Windows, analizar MFTs offline y autogenerar sumarios con IA.
+*   🟣 **Purple Teams:** Mapear cadenas de intrusión con técnicas de MITRE para construir reglas de detección precisas.
+
+_Diseñado y desarrollado como parte de la suite Muninn DFIR._
