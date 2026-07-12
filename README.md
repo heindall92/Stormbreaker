@@ -112,3 +112,11 @@ Stormbreaker is released under the **MIT License**. It is tailored for:
 *   🟣 **Purple Teams:** To map attack chains side-by-side with MITRE mappings to build robust detection rules.
 
 _Designed and developed as part of the Muninn DFIR Suite._
+
+---
+
+## 📬 Contact & Connect
+
+*   **Author:** Yoandy Ramirez Delgado
+*   **Email:** [yoandyramirezdelgdo@gmail.com](mailto:yoandyramirezdelgdo@gmail.com)
+*   **LinkedIn:** [Yoandy Ramirez](https://www.linkedin.com/in/yoandyrd92)
