@@ -75,7 +75,7 @@ App.xaml / MainWindow.xaml
 
 1. Abre tu terminal de Windows (CMD o PowerShell) en la raíz del proyecto:
    ```cmd
-   cd "E:\000Yoandy\Proyecto Stormbreaker DFIR\Stormbreaker"
+   cd Stormbreaker
    ```
 2. Ejecuta el compilador y lanza el binario:
    ```cmd
