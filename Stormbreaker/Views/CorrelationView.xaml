@@ -53,15 +53,15 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <ContentControl Content="{StaticResource IconGitMerge}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentCyanBrush}" Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="Correlation Engine" FontSize="19" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Txt[CorrelationHeader]}" FontSize="19" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <TextBlock Text="Cross-referencing artifacts by PID, path and time-window into a single attack narrative" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding Txt[CorrelationSub]}" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
                 
                 <Border Background="#1F8b5cf6" BorderBrush="#518b5cf6" BorderThickness="1" CornerRadius="12" Padding="12,4" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{Binding AttackCatalog.Count, FallbackValue=14}" Foreground="{StaticResource AccentPurpleBrush}" FontWeight="Bold"/>
-                        <TextBlock Text=" ATT&amp;CK techniques" Foreground="{StaticResource TextMutedBrush}"/>
+                        <TextBlock Text="{Binding Txt[MitreTechniquesSuffix]}" Foreground="{StaticResource TextMutedBrush}"/>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -80,10 +80,15 @@
                     
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12.5" LineHeight="20">
-                            Stormbreaker linked <Run Text="{Binding Events.Count, Mode=OneWay, FallbackValue=14}" FontWeight="Bold" Foreground="White"/> events across 
-                            <Run Text="4 artifact sources" FontWeight="Bold" Foreground="{StaticResource AccentCyanBrush}"/> (Event Logs · MFT · Registry · USN) using the pivot process 
-                            <Run Text="PID 4821" FontWeight="Bold" FontFamily="{StaticResource FontMono}" Foreground="White"/>, the shared path 
-                            <Run Text="%APPDATA%\svchost.exe" FontFamily="{StaticResource FontMono}" Foreground="White"/> and 90-second correlation windows. The result is the reconstructed kill-chain below.
+                            <Run Text="{Binding Txt[CorrelationIntro1], Mode=OneWay}"/>
+                            <Run Text="{Binding Events.Count, Mode=OneWay, FallbackValue=14}" FontWeight="Bold" Foreground="White"/>
+                            <Run Text="{Binding Txt[CorrelationIntro2], Mode=OneWay}"/>
+                            <Run Text="{Binding Txt[CorrelationIntro3], Mode=OneWay}" FontWeight="Bold" Foreground="{StaticResource AccentCyanBrush}"/>
+                            <Run Text="{Binding Txt[CorrelationIntro4], Mode=OneWay}"/>
+                            <Run Text="PID 4821" FontWeight="Bold" FontFamily="{StaticResource FontMono}" Foreground="White"/>
+                            <Run Text="{Binding Txt[CorrelationIntro5], Mode=OneWay}"/>
+                            <Run Text="%APPDATA%\svchost.exe" FontFamily="{StaticResource FontMono}" Foreground="White"/>
+                            <Run Text="{Binding Txt[CorrelationIntro6], Mode=OneWay}"/>
                         </TextBlock>
                     </StackPanel>
                 </Grid>
@@ -95,10 +100,10 @@
                     <Grid DockPanel.Dock="Top" Margin="0,0,0,16">
                         <StackPanel Orientation="Horizontal">
                             <ContentControl Content="{StaticResource IconTarget}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentRedBrush}" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="Reconstructed Attack Chain" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Txt[CorrelationChainHeader]}" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
                         </StackPanel>
                         <Border Background="#26ef4444" BorderBrush="#51ef4444" BorderThickness="1" CornerRadius="10" Padding="10,3" HorizontalAlignment="Right">
-                            <TextBlock Text="7 PHASES IDENTIFIED" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentRedBrush}"/>
+                            <TextBlock Text="{Binding Txt[CorrelationPhasesIdentified]}" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentRedBrush}"/>
                         </Border>
                     </Grid>
 
@@ -202,7 +207,7 @@
             <!-- MITRE ATT&CK Coverage -->
             <Border Grid.Row="3" Style="{StaticResource GlassPanel}" Margin="0">
                 <DockPanel>
-                    <TextBlock DockPanel.Dock="Top" Text="MITRE ATT&amp;CK Coverage" FontSize="13.5" FontWeight="SemiBold" Foreground="White" Margin="0,0,0,12"/>
+                    <TextBlock DockPanel.Dock="Top" Text="{Binding Txt[MitreObservedHeader]}" FontSize="13.5" FontWeight="SemiBold" Foreground="White" Margin="0,0,0,12"/>
                     
                     <!-- Tags Cloud -->
                     <ItemsControl ItemsSource="{Binding AttackCatalog}" Focusable="False">

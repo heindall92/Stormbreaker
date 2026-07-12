@@ -32,6 +32,38 @@ namespace Stormbreaker.ViewModels
             set => SetProperty(ref _isSidebarExpanded, value);
         }
 
+        // Translation Support
+        public Stormbreaker.Views.TranslationManager Txt { get; } = new Stormbreaker.Views.TranslationManager();
+
+        public string SelectedLanguage
+        {
+            get => Txt.Language;
+            set
+            {
+                if (Txt.Language != value)
+                {
+                    Txt.Language = value;
+                    OnPropertyChanged(nameof(SelectedLanguage));
+
+                    // Rebuild / translate data service
+                    _dataService.SetLanguage(value);
+
+                    // Notify data structures updated
+                    OnPropertyChanged(nameof(Events));
+                    OnPropertyChanged(nameof(Mft));
+                    OnPropertyChanged(nameof(Case));
+                    OnPropertyChanged(nameof(FilteredEvents));
+                    OnPropertyChanged(nameof(FilteredMft));
+                    OnPropertyChanged(nameof(Iocs));
+                    OnPropertyChanged(nameof(Chain));
+                    OnPropertyChanged(nameof(AttackCatalog));
+                    
+                    // Reset connection status texts based on language
+                    ConnectionStatusText = value == "es" ? "No probado" : "Not tested yet";
+                }
+            }
+        }
+
         // Triage Stats
         public CaseInfo Case => _dataService.Case;
         public List<EventLogItem> Events => _dataService.Events;
@@ -226,6 +258,35 @@ namespace Stormbreaker.ViewModels
             set => SetProperty(ref _isImportModalOpen, value);
         }
 
+        private bool _isDemoMode = true;
+        public bool IsDemoMode
+        {
+            get => _isDemoMode;
+            set
+            {
+                if (SetProperty(ref _isDemoMode, value))
+                {
+                    if (value)
+                    {
+                        _dataService.SetLanguage(Txt.Language);
+                    }
+                    else
+                    {
+                        _dataService.ClearData();
+                    }
+
+                    OnPropertyChanged(nameof(Events));
+                    OnPropertyChanged(nameof(Mft));
+                    OnPropertyChanged(nameof(Case));
+                    OnPropertyChanged(nameof(FilteredEvents));
+                    OnPropertyChanged(nameof(FilteredMft));
+                    OnPropertyChanged(nameof(Iocs));
+                    OnPropertyChanged(nameof(Chain));
+                    OnPropertyChanged(nameof(AttackCatalog));
+                }
+            }
+        }
+
         private double _scanProgress;
         public double ScanProgress
         {
@@ -332,6 +393,7 @@ namespace Stormbreaker.ViewModels
         public ICommand ExportJsonCommand { get; }
         public ICommand CopyIocsCommand { get; }
         public ICommand CopySingleIocCommand { get; }
+        public ICommand ImportFileCommand { get; }
 
         private CancellationTokenSource? _aiCts;
 
@@ -358,6 +420,7 @@ namespace Stormbreaker.ViewModels
                 // Add save confirmation / toast equivalent
             });
             ToggleImportModalCommand = new RelayCommand(_ => IsImportModalOpen = !IsImportModalOpen);
+            ImportFileCommand = new RelayCommand(_ => ExecuteImportFile());
             ToggleSidebarCommand = new RelayCommand(_ => IsSidebarExpanded = !IsSidebarExpanded);
             SortEventsCommand = new RelayCommand(param =>
             {
@@ -427,6 +490,75 @@ namespace Stormbreaker.ViewModels
             IsScanning = false;
             ScanStatusText = "Idle";
             CurrentView = "dashboard";
+        }
+
+        private void ExecuteImportFile()
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Forensic Evidence (*.json;*.evtx;*.*)|*.json;*.evtx;*.*",
+                Title = Txt.Language == "es" ? "Seleccionar evidencia forense" : "Select Forensic Evidence File"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                IsImportModalOpen = false;
+                IsScanning = true;
+                ScanStatusText = Txt.Language == "es" ? "Analizando y parseando archivo..." : "Parsing file...";
+                ScanProgress = 10;
+
+                // Run simulated extraction
+                Task.Run(async () =>
+                {
+                    await Task.Delay(800);
+                    System.Windows.Application.Current.Dispatcher.Invoke(() => ScanProgress = 40);
+                    await Task.Delay(600);
+                    System.Windows.Application.Current.Dispatcher.Invoke(() => ScanProgress = 85);
+                    await Task.Delay(500);
+
+                    bool customLoaded = false;
+                    if (dialog.FileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                    {
+                        try
+                        {
+                            var content = System.IO.File.ReadAllText(dialog.FileName, Encoding.UTF8);
+                            var customCase = System.Text.Json.JsonSerializer.Deserialize<Stormbreaker.Services.CustomCaseData>(content, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                            if (customCase != null && customCase.Case != null)
+                            {
+                                _dataService.LoadCustomCase(customCase);
+                                customLoaded = true;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            // fallback
+                        }
+                    }
+
+                    if (!customLoaded)
+                    {
+                        // Reset to standard demo data
+                        _dataService.SetLanguage(Txt.Language);
+                    }
+
+                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        IsScanning = false;
+                        ScanStatusText = "Idle";
+                        
+                        OnPropertyChanged(nameof(Events));
+                        OnPropertyChanged(nameof(Mft));
+                        OnPropertyChanged(nameof(Case));
+                        OnPropertyChanged(nameof(FilteredEvents));
+                        OnPropertyChanged(nameof(FilteredMft));
+                        OnPropertyChanged(nameof(Iocs));
+                        OnPropertyChanged(nameof(Chain));
+                        OnPropertyChanged(nameof(AttackCatalog));
+                        
+                        CurrentView = "dashboard";
+                    });
+                });
+            }
         }
 
         private async Task ExecuteTestOllamaAsync()
@@ -528,6 +660,8 @@ namespace Stormbreaker.ViewModels
 
         private (string SystemPrompt, string UserPrompt) BuildDfirPrompt(string question)
         {
+            bool isEs = Txt.Language == "es";
+
             var topEvents = string.Join("\n", Events.Select(e => 
                 $"[{e.T}] {e.Ch} EID {e.Id} ({e.Lvl}) {e.Src} — {e.Msg} {{ATT&CK {string.Join(",", e.Mitre)}}} pid={e.Pid}"));
 
@@ -537,76 +671,109 @@ namespace Stormbreaker.ViewModels
             var iocDetails = string.Join("\n", Iocs.Select(i => 
                 $"- {i.Type}: {i.Val} ({i.Conf}, {i.Ctx})"));
 
-            var dossier = $"CASE {Case.Id} | host {Case.Host} | {Case.Os} | acquired {Case.Acquired}\n\n"
-                          + $"EVENT TIMELINE (UTC):\n{topEvents}\n\n"
-                          + $"MFT TIMESTOMP FLAGS ($STANDARD_INFO vs $FILE_NAME):\n{stompMft}\n\n"
-                          + $"INDICATORS OF COMPROMISE:\n{iocDetails}";
+            var dossierHeader = isEs ? "CASO" : "CASE";
+            var timelineHeader = isEs ? "LÍNEA TEMPORAL DE EVENTOS" : "EVENT TIMELINE";
+            var mftHeader = isEs ? "ALERTAS TIMESTOMPING DE MFT" : "MFT TIMESTOMP FLAGS";
+            var iocHeader = isEs ? "INDICADORES DE COMPROMISO" : "INDICATORS OF COMPROMISE";
 
-            var sys = "You are a senior DFIR (Digital Forensics & Incident Response) analyst embedded in the Muninn console. "
-                      + "Analyse ONLY the evidence provided. Be precise, technical and concise. "
-                      + "Map findings to MITRE ATT&CK technique IDs where relevant. "
-                      + "Structure the answer with short Markdown sections: ## Executive Summary, ## Attack Chain, ## Indicators, ## Recommended Actions. "
-                      + "Use bullet points. Do not invent artifacts that are not in the evidence. Never output more than ~350 words.";
+            var dossier = $"{dossierHeader} {Case.Id} | host {Case.Host} | {Case.Os} | acquired {Case.Acquired}\n\n"
+                          + $"{timelineHeader} (UTC):\n{topEvents}\n\n"
+                          + $"{mftHeader} ($STANDARD_INFO vs $FILE_NAME):\n{stompMft}\n\n"
+                          + $"{iocHeader}:\n{iocDetails}";
 
-            var user = $"Forensic evidence:\n\n{dossier}\n\n"
-                       + (!string.IsNullOrWhiteSpace(question) ? $"Analyst question: {question.Trim()}" : "Task: produce the incident analysis for this case.");
+            var sys = isEs 
+                ? "Eres un analista senior de DFIR (Forense Digital y Respuesta a Incidentes) integrado en la consola Muninn. "
+                  + "Analiza ÚNICAMENTE la evidencia proporcionada. Sé preciso, técnico y conciso. "
+                  + "Mapea los hallazgos a los IDs de técnicas de MITRE ATT&CK cuando corresponda. "
+                  + "Estructura la respuesta con secciones cortas en Markdown: ## Resumen Ejecutivo, ## Cadena de Ataque, ## Indicadores, ## Acciones Recomendadas. "
+                  + "Usa viñetas. No inventes artefactos que no estén en la evidencia. Nunca generes más de ~350 palabras."
+                : "You are a senior DFIR (Digital Forensics & Incident Response) analyst embedded in the Muninn console. "
+                  + "Analyse ONLY the evidence provided. Be precise, technical and concise. "
+                  + "Map findings to MITRE ATT&CK technique IDs where relevant. "
+                  + "Structure the answer with short Markdown sections: ## Executive Summary, ## Attack Chain, ## Indicators, ## Recommended Actions. "
+                  + "Use bullet points. Do not invent artifacts that are not in the evidence. Never output more than ~350 words.";
+
+            var defaultTask = isEs ? "Tarea: redactar el análisis de incidente para este caso." : "Task: produce the incident analysis for this case.";
+            var userQuestionHeader = isEs ? "Pregunta del analista:" : "Analyst question:";
+
+            var user = $"{(isEs ? "Evidencia forense" : "Forensic evidence")}:\n\n{dossier}\n\n"
+                       + (!string.IsNullOrWhiteSpace(question) ? $"{userQuestionHeader} {question.Trim()}" : defaultTask);
 
             return (sys, user);
         }
 
         private string GetDemoResponse(string question)
         {
+            bool isEs = Txt.Language == "es";
             var q = question.ToLowerInvariant();
             if (q.Contains("powershell") || q.Contains("4104"))
             {
-                return "## PowerShell activity\nEvent ID **4104** at `14:04:11` captured a `base64` **EncodedCommand** with three obfuscation layers (**T1059.001**, **T1027**). The decoded payload runs `IEX (New-Object Net.WebClient).DownloadString(...)` pulling a stage from `cdn-telemetry-sync[.]net`.\n\n## Why it is suspicious\n- Unsigned script block, parent is not a shell you would expect\n- Immediately followed by a `cmd /c copy payload.dat svchost.exe` (**T1105**)\n- Same `pid=4821` later writes the Run key and opens the C2 socket\n\n## Recommended\n- Pull the full script block by `ScriptBlockId a91f-…-77c2`\n- Hunt the decoded URL and the `svchost.exe` SHA256 across the fleet";
+                return isEs
+                    ? "## Actividad de PowerShell\nEl Event ID **4104** a las `14:04:11` capturó un **EncodedCommand** en `base64` con tres capas de ofuscación (**T1059.001**, **T1027**). El payload decodificado ejecuta `IEX (New-Object Net.WebClient).DownloadString(...)` descargando una fase desde `cdn-telemetry-sync[.]net`.\n\n## Por qué es sospechoso\n- Bloque de script sin firmar, el proceso padre no es una consola esperada\n- Seguido inmediatamente por un `cmd /c copy payload.dat svchost.exe` (**T1105**)\n- El mismo `pid=4821` escribe luego la Run key y abre el socket de C2\n\n## Recomendaciones\n- Extraer el bloque de script completo mediante el `ScriptBlockId a91f-…-77c2`\n- Rastrear la URL decodificada y el hash SHA256 de `svchost.exe` en todos los equipos"
+                    : "## PowerShell activity\nEvent ID **4104** at `14:04:11` captured a `base64` **EncodedCommand** with three obfuscation layers (**T1059.001**, **T1027**). The decoded payload runs `IEX (New-Object Net.WebClient).DownloadString(...)` pulling a stage from `cdn-telemetry-sync[.]net`.\n\n## Why it is suspicious\n- Unsigned script block, parent is not a shell you would expect\n- Immediately followed by a `cmd /c copy payload.dat svchost.exe` (**T1105**)\n- Same `pid=4821` later writes the Run key and opens the C2 socket\n\n## Recommended\n- Pull the full script block by `ScriptBlockId a91f-…-77c2`\n- Hunt the decoded URL and the `svchost.exe` SHA256 across the fleet";
             }
-            if (q.Contains("persist") || q.Contains("run key") || q.Contains("service"))
+            if (q.Contains("persist") || q.Contains("run key") || q.Contains("service") || q.Contains("persis"))
             {
-                return "## Persistence\nTwo mechanisms, both pointing at `%APPDATA%\\svchost.exe`:\n- **Run key** `HKCU\\...\\Run\\WindowsSvc` written `14:10:11` (**T1547.001**)\n- **Service** `WinDefendSvc` installed `14:47:12`, masquerading as Defender (**T1543.003**), backed by a scheduled task (MFT #277650)\n\n## Recommended\n- Remove both, then confirm the binary is quarantined before reboot (the service auto-starts)";
+                return isEs
+                    ? "## Persistencia\nSe observaron dos mecanismos, ambos apuntando a `%APPDATA%\\svchost.exe`:\n- **Clave Run** `HKCU\\...\\Run\\WindowsSvc` escrita a las `14:10:11` (**T1547.001**)\n- **Servicio** `WinDefendSvc` instalado a las `14:47:12`, suplantando a Defender (**T1543.003**), respaldado por una tarea programada (MFT #277650)\n\n## Recomendaciones\n- Eliminar ambos y confirmar que el binario sea puesto en cuarentena antes de reiniciar (el servicio inicia automáticamente)"
+                    : "## Persistence\nTwo mechanisms, both pointing at `%APPDATA%\\svchost.exe`:\n- **Run key** `HKCU\\...\\Run\\WindowsSvc` written `14:10:11` (**T1547.001**)\n- **Service** `WinDefendSvc` installed `14:47:12`, masquerading as Defender (**T1543.003**), backed by a scheduled task (MFT #277650)\n\n## Recommended\n- Remove both, then confirm the binary is quarantined before reboot (the service auto-starts)";
             }
-            if (q.Contains("ioc") || q.Contains("indicator"))
+            if (q.Contains("ioc") || q.Contains("indicator") || q.Contains("indicador"))
             {
-                return "## Key indicators\n- **C2** `185.220.101.47:443` (no PTR) — **T1071.001**\n- **Dropper** `%APPDATA%\\svchost.exe`, SHA256 `9f2b4c7e…d5e8`\n- **Staging** `cdn-telemetry-sync[.]net`\n- **Persistence** Run\\WindowsSvc + service WinDefendSvc\n- **Initial access** SanDisk Cruzer USB serial `4C530001…`\n\nExport the full set from the Reports view (JSON/STIX-friendly).";
+                return isEs
+                    ? "## Indicadores clave\n- **C2** `185.220.101.47:443` (sin registro PTR) — **T1071.001**\n- **Dropper** `%APPDATA%\\svchost.exe`, SHA256 `9f2b4c7e…d5e8`\n- **Staging** `cdn-telemetry-sync[.]net`\n- **Persistencia** Run\\WindowsSvc + servicio WinDefendSvc\n- **Acceso inicial** USB SanDisk Cruzer con serial `4C530001…`\n\nPuedes exportar la lista completa desde la vista de Informes (JSON compatible con STIX)."
+                    : "## Key indicators\n- **C2** `185.220.101.47:443` (no PTR) — **T1071.001**\n- **Dropper** `%APPDATA%\\svchost.exe`, SHA256 `9f2b4c7e…d5e8`\n- **Staging** `cdn-telemetry-sync[.]net`\n- **Persistence** Run\\WindowsSvc + service WinDefendSvc\n- **Initial access** SanDisk Cruzer USB serial `4C530001…`\n\nExport the full set from the Reports view (JSON/STIX-friendly).";
             }
 
-            return $"## Executive Summary\n**High-confidence intrusion** on `{Case.Host}` beginning **14:02 UTC**. The operator used living-off-the-land tradecraft to gain execution, establish C2, persist, destroy data and move laterally — all within ~50 minutes.\n\n## Attack Chain\n- **Initial Access** — SanDisk Cruzer USB mounted as `D:\\`, delivered tooling (**T1200**)\n- **Execution** — obfuscated PowerShell `EID 4104`, 3-layer base64 (**T1059.001 / T1027**)\n- **C2** — `svchost.exe` → `185.220.101.47:443`, no DNS (**T1071.001 / T1105**)\n- **Persistence** — Run key `WindowsSvc` + service `WinDefendSvc` (**T1547.001 / T1543.003**)\n- **Defense Evasion** — `$STANDARD_INFO` timestomp on 3 binaries, Security log cleared, Defender tampered (**T1070.006 / T1070.001 / T1562.001**)\n- **Impact** — 847 files zeroed in `\\Documents`, shadow copies deleted (**T1485 / T1490**)\n- **Lateral Movement** — network logon to `ADMIN$` on `FIN-WKS-11` (**T1021.002**)\n\n## Indicators\n- `185.220.101.47` · `%APPDATA%\\svchost.exe` · `cdn-telemetry-sync[.]net` · Run\\WindowsSvc · service WinDefendSvc\n\n## Recommended Actions\n- Isolate `{Case.Host}` and **capture memory before shutdown**\n- Preserve `$MFT`, `$LogFile`, USN Journal for extended timeline work\n- Block the C2 IP + staging domain, hunt the SHA256 fleet-wide\n- Reset credentials for FIN\\a.morgan and audit access to the ADMIN$ share on FIN-WKS-11";
+            return isEs
+                ? $"## Resumen Ejecutivo\n**Intrusión de alta confianza** en `{Case.Host}` comenzando a las **14:02 UTC**. El atacante usó tácticas living-off-the-land para ganar ejecución, establecer C2, persistir, destruir datos y realizar movimiento lateral — todo en aproximadamente 50 minutos.\n\n## Cadena de Ataque\n- **Acceso Inicial** — USB SanDisk Cruzer montado como `D:\\`, entregó herramientas (**T1200**)\n- **Ejecución** — PowerShell ofuscado `EID 4104`, base64 de 3 capas (**T1059.001 / T1027**)\n- **C2** — `svchost.exe` → `185.220.101.47:443`, no DNS (**T1071.001 / T1105**)\n- **Persistencia** — Clave Run `WindowsSvc` + servicio `WinDefendSvc` (**T1547.001 / T1543.003**)\n- **Evasión de Defensa** — Timestomp de `$STANDARD_INFO` en 3 binarios, registro de Seguridad borrado, manipulación de Defender (**T1070.006 / T1070.001 / T1562.001**)\n- **Impacto** — 847 archivos puestos a cero en `\\Documents`, copias de sombra eliminadas (**T1485 / T1490**)\n- **Movimiento Lateral** — inicio de sesión de red a `ADMIN$` en `FIN-WKS-11` (**T1021.002**)\n\n## Indicadores\n- `185.220.101.47` · `%APPDATA%\\svchost.exe` · `cdn-telemetry-sync[.]net` · Run\\WindowsSvc · servicio WinDefendSvc\n\n## Acciones Recomendadas\n- Aislar `{Case.Host}` de la red y **capturar memoria antes de apagar**\n- Preservar `$MFT`, `$LogFile` y el USN Journal para análisis cronológico detallado\n- Bloquear la IP del C2 y el dominio de staging, cazar el hash SHA256 en toda la red\n- Restablecer credenciales de FIN\\a.morgan y auditar acceso al recurso compartido ADMIN$ en FIN-WKS-11"
+                : $"## Executive Summary\n**High-confidence intrusion** on `{Case.Host}` beginning **14:02 UTC**. The operator used living-off-the-land tradecraft to gain execution, establish C2, persist, destroy data and move laterally — all within ~50 minutes.\n\n## Attack Chain\n- **Initial Access** — SanDisk Cruzer USB mounted as `D:\\`, delivered tooling (**T1200**)\n- **Execution** — obfuscated PowerShell `EID 4104`, 3-layer base64 (**T1059.001 / T1027**)\n- **C2** — `svchost.exe` → `185.220.101.47:443`, no DNS (**T1071.001 / T1105**)\n- **Persistence** — Run key `WindowsSvc` + service `WinDefendSvc` (**T1547.001 / T1543.003**)\n- **Defense Evasion** — `$STANDARD_INFO` timestomp on 3 binaries, Security log cleared, Defender tampered (**T1070.006 / T1070.001 / T1562.001**)\n- **Impact** — 847 files zeroed in `\\Documents`, shadow copies deleted (**T1485 / T1490**)\n- **Lateral Movement** — network logon to `ADMIN$` on `FIN-WKS-11` (**T1021.002**)\n\n## Indicators\n- `185.220.101.47` · `%APPDATA%\\svchost.exe` · `cdn-telemetry-sync[.]net` · Run\\WindowsSvc · service WinDefendSvc\n\n## Recommended Actions\n- Isolate `{Case.Host}` and **capture memory before shutdown**\n- Preserve `$MFT`, `$LogFile`, USN Journal for extended timeline work\n- Block the C2 IP + staging domain, hunt the SHA256 fleet-wide\n- Reset credentials for FIN\\a.morgan and audit access to the ADMIN$ share on FIN-WKS-11";
         }
 
         private string GetMarkdownReport()
         {
+            bool isEs = Txt.Language == "es";
             var sb = new StringBuilder();
-            sb.AppendLine("# Stormbreaker DFIR — Incident Report");
+            sb.AppendLine(isEs ? "# Stormbreaker DFIR — Informe de Incidente" : "# Stormbreaker DFIR — Incident Report");
             sb.AppendLine();
-            sb.AppendLine($"- **Case:** {Case.Id}");
-            sb.AppendLine($"- **Host:** {Case.Host} ({Case.Os})");
-            sb.AppendLine($"- **Analyst:** {Case.Analyst}");
-            sb.AppendLine($"- **Acquired:** {Case.Acquired}");
-            sb.AppendLine($"- **Tooling:** {Case.Tool}");
+            sb.AppendLine(isEs ? $"- **Caso:** {Case.Id}" : $"- **Case:** {Case.Id}");
+            sb.AppendLine(isEs ? $"- **Equipo:** {Case.Host} ({Case.Os})" : $"- **Host:** {Case.Host} ({Case.Os})");
+            sb.AppendLine(isEs ? $"- **Analista:** {Case.Analyst}" : $"- **Analyst:** {Case.Analyst}");
+            sb.AppendLine(isEs ? $"- **Adquirido:** {Case.Acquired}" : $"- **Acquired:** {Case.Acquired}");
+            sb.AppendLine(isEs ? $"- **Herramienta:** {Case.Tool}" : $"- **Tooling:** {Case.Tool}");
             sb.AppendLine();
-            sb.AppendLine("## Executive Summary");
-            sb.AppendLine("High-confidence intrusion on FIN-WKS-07 starting 14:02 UTC. A living-off-the-land chain progressed from USB delivery through obfuscated PowerShell, established C2 to 185.220.101.47, installed Run-key and service persistence, performed timestomping and log clearing, and destroyed 847 files while deleting Volume Shadow Copies. A lateral network logon to a peer host was observed.");
+            sb.AppendLine(isEs ? "## Resumen Ejecutivo" : "## Executive Summary");
+            sb.AppendLine(isEs 
+                ? "Intrusión de alta confianza en FIN-WKS-07 comenzando a las 14:02 UTC. Una cadena de ejecución living-off-the-land progresó desde la entrega de USB a través de PowerShell ofuscado, estableció canal C2 a 185.220.101.47, instaló persistencia en clave Run y de servicio, realizó timestomping y borrado de logs, y destruyó 847 archivos además de borrar copias de sombra de volumen. Se detectó un inicio de sesión de red lateral a un equipo par."
+                : "High-confidence intrusion on FIN-WKS-07 starting 14:02 UTC. A living-off-the-land chain progressed from USB delivery through obfuscated PowerShell, established C2 to 185.220.101.47, installed Run-key and service persistence, performed timestomping and log clearing, and destroyed 847 files while deleting Volume Shadow Copies. A lateral network logon to a peer host was observed.");
             sb.AppendLine();
-            sb.AppendLine("## Attack Chain (MITRE ATT&CK)");
+            sb.AppendLine(isEs ? "## Cadena de Ataque (MITRE ATT&CK)" : "## Attack Chain (MITRE ATT&CK)");
             foreach (var node in Chain)
             {
                 sb.AppendLine($"- **{node.Phase}** ({node.T}) — {node.Title}. {node.Meta} [ {string.Join(", ", node.Mitre)} ]");
             }
             sb.AppendLine();
-            sb.AppendLine("## Indicators of Compromise");
+            sb.AppendLine(isEs ? "## Indicadores de Compromiso" : "## Indicators of Compromise");
             foreach (var ioc in Iocs)
             {
                 sb.AppendLine($"- `{ioc.Type}` {ioc.Val} ({ioc.Conf} confidence — {ioc.Ctx})");
             }
             sb.AppendLine();
-            sb.AppendLine("## Techniques Observed");
+            sb.AppendLine(isEs ? "## Técnicas Observadas" : "## Techniques Observed");
             foreach (var tech in AttackCatalog)
             {
                 sb.AppendLine($"- {tech.Key} — {tech.Value}");
             }
             sb.AppendLine();
-            sb.AppendLine("## Recommended Actions");
-            var actions = new[]
+            sb.AppendLine(isEs ? "## Acciones Recomendadas" : "## Recommended Actions");
+            var actions = isEs ? new[]
+            {
+                $"Aislar {Case.Host} de la red inmediatamente para contener propagaciones laterales.",
+                "Capturar una imagen completa de memoria RAM antes de apagar para preservar artefactos volátiles.",
+                "Preservar $MFT, $LogFile y el USN Journal para reconstrucción cronológica de la línea de tiempo.",
+                "Bloquear la IP 185.220.101.47 y el dominio cdn-telemetry-sync[.]net en el perímetro; buscar el SHA256 en toda la red.",
+                "Restablecer credenciales de la cuenta de dominio de FIN\\a.morgan y auditar accesos al recurso ADMIN$ en FIN-WKS-11."
+            } : new[]
             {
                 $"Isolate {Case.Host} from the network immediately (contain lateral movement).",
                 "Capture a full memory image before shutdown to preserve volatile artifacts.",
@@ -619,7 +786,9 @@ namespace Stormbreaker.ViewModels
                 sb.AppendLine($"{i + 1}. {actions[i]}");
             }
             sb.AppendLine();
-            sb.AppendLine($"_Generated by Stormbreaker DFIR Console · {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC_");
+            sb.AppendLine(isEs 
+                ? $"_Generado por la Consola Stormbreaker DFIR · {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC_"
+                : $"_Generated by Stormbreaker DFIR Console · {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC_");
             return sb.ToString();
         }
 

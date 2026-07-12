@@ -82,15 +82,15 @@
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <ContentControl Content="{StaticResource IconClock}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentCyanBrush}" Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                    <TextBlock Text="Super Timeline" FontSize="19" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding Txt[TimelineHeader]}" FontSize="19" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
                 </StackPanel>
-                <TextBlock Text="Unified chronology across Event Logs, MFT, Registry and USN — newest first" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,0"/>
+                <TextBlock Text="{Binding Txt[TimelineSub]}" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,0"/>
             </StackPanel>
             
             <Border Background="#1F00d4ff" BorderBrush="#5100d4ff" BorderThickness="1" CornerRadius="12" Padding="12,4" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding TimelineEvents.Count, FallbackValue=0}" Foreground="{StaticResource AccentCyanBrush}" FontWeight="Bold"/>
-                    <TextBlock Text=" events" Foreground="{StaticResource TextMutedBrush}"/>
+                    <TextBlock Text="{Binding Txt[EventsCountSuffix]}" Foreground="{StaticResource TextMutedBrush}"/>
                 </StackPanel>
             </Border>
         </Grid>
@@ -118,7 +118,7 @@
                                 </Style.Triggers>
                             </Style>
                         </Button.Style>
-                        <TextBlock Text="All sources"/>
+                        <TextBlock Text="{Binding Txt[TimelineAllSources]}"/>
                     </Button>
                     
                     <!-- Critical -->
@@ -134,7 +134,7 @@
                                 </Style.Triggers>
                             </Style>
                         </Button.Style>
-                        <TextBlock Text="Critical"/>
+                        <TextBlock Text="{Binding Txt[SeverityCritical]}"/>
                     </Button>
                     
                     <!-- Warning -->
@@ -150,7 +150,7 @@
                                 </Style.Triggers>
                             </Style>
                         </Button.Style>
-                        <TextBlock Text="Warning"/>
+                        <TextBlock Text="{Binding Txt[SeverityWarning]}"/>
                     </Button>
                     
                     <!-- Info -->
@@ -166,7 +166,7 @@
                                 </Style.Triggers>
                             </Style>
                         </Button.Style>
-                        <TextBlock Text="Info"/>
+                        <TextBlock Text="{Binding Txt[SeverityInfo]}"/>
                     </Button>
 
                     <!-- Success -->
@@ -182,7 +182,7 @@
                                 </Style.Triggers>
                             </Style>
                         </Button.Style>
-                        <TextBlock Text="Notable"/>
+                        <TextBlock Text="{Binding Txt[SeverityNotable]}"/>
                     </Button>
                 </StackPanel>
 

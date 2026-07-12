@@ -59,9 +59,9 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <ContentControl Content="{StaticResource IconFileText}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentCyanBrush}" Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="Reports &amp; IOCs" FontSize="19" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Txt[ReportsHeader]}" FontSize="19" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <TextBlock Text="Executive analysis report, indicators of compromise lists and export triggers" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding Txt[ReportsSub]}" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
 
                 <!-- Header Actions (Export triggers) -->
@@ -88,10 +88,10 @@
                     <Grid DockPanel.Dock="Top" Margin="0,0,0,14">
                         <StackPanel Orientation="Horizontal">
                             <ContentControl Content="{StaticResource IconFileText}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentCyanBrush}" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="Executive Report · Case MUN-2026-0417" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Txt[ReportExecutiveCaseHeader]}" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
                         </StackPanel>
                         <Border Background="#1F22c55e" BorderBrush="#5122c55e" BorderThickness="1" CornerRadius="10" Padding="10,3" HorizontalAlignment="Right">
-                            <TextBlock Text="READY FOR HANDOFF" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentGreenBrush}"/>
+                            <TextBlock Text="{Binding Txt[ReportReadyHandoff]}" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentGreenBrush}"/>
                         </Border>
                     </Grid>
 
@@ -99,16 +99,16 @@
                     <StackPanel>
                         <Border Background="#26000000" CornerRadius="8" Padding="14" BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="1" Margin="0,0,0,14">
                             <StackPanel>
-                                <TextBlock Text="Summary" FontSize="12.5" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
-                                <TextBlock Text="High-confidence intrusion on FIN-WKS-07 starting 14:02 UTC. A living-off-the-land chain progressed from USB delivery through obfuscated PowerShell, established C2 to 185.220.101.47, installed Run-key and service persistence, performed timestomping and log clearing, and destroyed 847 files while deleting Volume Shadow Copies. A lateral network logon to a peer host was observed."
+                                <TextBlock Text="{Binding Txt[ReportSummary]}" FontSize="12.5" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                                <TextBlock Text="{Binding Txt[ExecSummaryText]}"
                                            Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" LineHeight="18" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
 
                         <Border Background="#26000000" CornerRadius="8" Padding="14" BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="1" Margin="0,0,0,14">
                             <StackPanel>
-                                <TextBlock Text="Impact" FontSize="12.5" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
-                                <TextBlock Text="Critical compromise of workstation host. Exposure of local admin credentials. Destruction of 847 user documents (zeroed). Deletion of local backups. Host-level containment required to prevent lateral movement across the FIN domain segment."
+                                <TextBlock Text="{Binding Txt[ReportImpact]}" FontSize="12.5" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                                <TextBlock Text="{Binding Txt[ReportImpactText]}"
                                            Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" LineHeight="18" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
@@ -116,7 +116,7 @@
                         <!-- Recommended Actions checklist -->
                         <Border Background="#26000000" CornerRadius="8" Padding="14" BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="1">
                             <StackPanel>
-                                <TextBlock Text="Recommended Actions" FontSize="12.5" FontWeight="Bold" Foreground="White" Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding Txt[PlaybookHeader]}" FontSize="12.5" FontWeight="Bold" Foreground="White" Margin="0,0,0,8"/>
                                 
                                 <Grid Margin="0,0,0,6">
                                     <Grid.ColumnDefinitions>
@@ -124,7 +124,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="1." Foreground="{StaticResource AccentCyanBrush}" FontWeight="Bold" FontSize="12"/>
-                                    <TextBlock Grid.Column="1" Text="Isolate FIN-WKS-07 from the network immediately (contain lateral movement)." Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Txt[ReportAction1]}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
                                 </Grid>
                                 
                                 <Grid Margin="0,0,0,6">
@@ -133,7 +133,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="2." Foreground="{StaticResource AccentCyanBrush}" FontWeight="Bold" FontSize="12"/>
-                                    <TextBlock Grid.Column="1" Text="Capture a full memory image before shutdown to preserve volatile artifacts." Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Txt[ReportAction2]}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
                                 </Grid>
 
                                 <Grid Margin="0,0,0,6">
@@ -142,7 +142,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="3." Foreground="{StaticResource AccentCyanBrush}" FontWeight="Bold" FontSize="12"/>
-                                    <TextBlock Grid.Column="1" Text="Preserve $MFT, $LogFile and the USN Journal for extended timeline reconstruction." Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Txt[ReportAction3]}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
                                 </Grid>
 
                                 <Grid Margin="0,0,0,6">
@@ -151,7 +151,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="4." Foreground="{StaticResource AccentCyanBrush}" FontWeight="Bold" FontSize="12"/>
-                                    <TextBlock Grid.Column="1" Text="Block 185.220.101.47 and cdn-telemetry-sync[.]net at the perimeter; hunt the SHA256 fleet-wide." Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Txt[ReportAction4]}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
                                 </Grid>
 
                                 <Grid>
@@ -160,7 +160,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="5." Foreground="{StaticResource AccentCyanBrush}" FontWeight="Bold" FontSize="12"/>
-                                    <TextBlock Grid.Column="1" Text="Reset credentials for FIN\a.morgan and audit access to the ADMIN$ share on FIN-WKS-11." Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Txt[ReportAction5]}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
                                 </Grid>
                             </StackPanel>
                         </Border>
@@ -182,12 +182,12 @@
                         <Grid DockPanel.Dock="Top" Margin="0,0,0,12">
                             <StackPanel Orientation="Horizontal">
                                 <ContentControl Content="{StaticResource IconTarget}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentCyanBrush}" Width="15" Height="15" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="Indicators of Compromise" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
-                            </StackPanel>
-                            <Button Style="{StaticResource BtnGlass}" HorizontalAlignment="Right" Command="{Binding CopyIocsCommand}" Padding="8,4">
-                                <StackPanel Orientation="Horizontal">
-                                    <ContentControl Content="{StaticResource IconCopy}" Style="{StaticResource DfirIcon}" Margin="0,0,6,0" Width="12" Height="12"/>
-                                    <TextBlock Text="Copy all" FontSize="11" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Txt[IocHeader]}" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <Button Style="{StaticResource BtnGlass}" HorizontalAlignment="Right" Command="{Binding CopyIocsCommand}" Padding="8,4">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ContentControl Content="{StaticResource IconCopy}" Style="{StaticResource DfirIcon}" Margin="0,0,6,0" Width="12" Height="12"/>
+                                        <TextBlock Text="{Binding Txt[BtnCopyAll]}" FontSize="11" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </Grid>
@@ -249,7 +249,7 @@
                         <Grid DockPanel.Dock="Top" Margin="0,0,0,12">
                             <StackPanel Orientation="Horizontal">
                                 <ContentControl Content="{StaticResource IconShield}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentPurpleBrush}" Width="15" Height="15" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="Mapped ATT&amp;CK Techniques" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding Txt[MitreObservedHeader]}" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
                             </StackPanel>
                             <Border Background="#268b5cf6" BorderBrush="#518b5cf6" BorderThickness="1" CornerRadius="10" Padding="8,2" HorizontalAlignment="Right" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding AttackCatalog.Count, FallbackValue=14}" FontSize="10" FontWeight="Bold" Foreground="{StaticResource AccentPurpleBrush}"/>

@@ -40,7 +40,7 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <ContentControl Content="{StaticResource IconLayoutGrid}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentCyanBrush}" Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="Case Overview" FontSize="19" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Txt[DashHeader]}" FontSize="19" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
                     </StackPanel>
                     <TextBlock FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,0">
                         <Run Text="{Binding Case.Id, Mode=OneWay}" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
@@ -63,7 +63,7 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0">
-                            <TextBlock Text="Events Correlated" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource TextMutedBrush}"/>
+                            <TextBlock Text="{Binding Txt[KpiEvents]}" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource TextMutedBrush}"/>
                             <Border Width="30" Height="30" CornerRadius="8" Background="#1F00d4ff" HorizontalAlignment="Right" VerticalAlignment="Center">
                                 <ContentControl Content="{StaticResource IconActivity}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentCyanBrush}" Width="16" Height="16"/>
                             </Border>
@@ -82,7 +82,7 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0">
-                            <TextBlock Text="MFT Records" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource TextMutedBrush}"/>
+                            <TextBlock Text="{Binding Txt[KpiMft]}" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource TextMutedBrush}"/>
                             <Border Width="30" Height="30" CornerRadius="8" Background="#1F8b5cf6" HorizontalAlignment="Right" VerticalAlignment="Center">
                                 <ContentControl Content="{StaticResource IconHardDrive}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentPurpleBrush}" Width="16" Height="16"/>
                             </Border>
@@ -101,7 +101,7 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0">
-                            <TextBlock Text="Critical Threats" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource TextMutedBrush}"/>
+                            <TextBlock Text="{Binding Txt[KpiAlerts]}" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource TextMutedBrush}"/>
                             <Border Width="30" Height="30" CornerRadius="8" Background="#1Fef4444" HorizontalAlignment="Right" VerticalAlignment="Center">
                                 <ContentControl Content="{StaticResource IconShield}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentRedBrush}" Width="16" Height="16"/>
                             </Border>
@@ -121,7 +121,7 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0">
-                            <TextBlock Text="Time to Insight" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource TextMutedBrush}"/>
+                            <TextBlock Text="{Binding Txt[KpiTime]}" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource TextMutedBrush}"/>
                             <Border Width="30" Height="30" CornerRadius="8" Background="#1Ff59e0b" HorizontalAlignment="Right" VerticalAlignment="Center">
                                 <ContentControl Content="{StaticResource IconClock}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentOrangeBrush}" Width="16" Height="16"/>
                             </Border>
@@ -150,10 +150,10 @@
                                         <BlurEffect Radius="4"/>
                                     </Border.Effect>
                                 </Border>
-                                <TextBlock Text="Forensic Timeline Alerts" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding Txt[DashTimelineActivity]}" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
                             </StackPanel>
                             <Border Background="#2600d4ff" BorderBrush="#5100d4ff" BorderThickness="1" CornerRadius="10" Padding="10,3" HorizontalAlignment="Right">
-                                <TextBlock Text="LIVE ALERT CHANNEL" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentCyanBrush}"/>
+                                <TextBlock Text="{Binding Txt[LiveAlertChannel]}" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentCyanBrush}"/>
                             </Border>
                         </Grid>
 
@@ -162,7 +162,7 @@
                                 Command="{Binding NavigateCommand}" CommandParameter="timeline">
                             <StackPanel Orientation="Horizontal">
                                 <ContentControl Content="{StaticResource IconClock}" Style="{StaticResource DfirIcon}" Margin="0,0,8,0"/>
-                                <TextBlock Text="View full chronology" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding Txt[ViewFullChronology]}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
@@ -216,7 +216,7 @@
                     <!-- Severity breakdown panel -->
                     <Border Style="{StaticResource GlassPanel}">
                         <DockPanel>
-                            <TextBlock DockPanel.Dock="Top" Text="Severity Breakdown" FontSize="13.5" FontWeight="SemiBold" Foreground="White" Margin="0,0,0,14"/>
+                            <TextBlock DockPanel.Dock="Top" Text="{Binding Txt[DashSeverity]}" FontSize="13.5" FontWeight="SemiBold" Foreground="White" Margin="0,0,0,14"/>
                             
                             <!-- Clean list view of severity details -->
                             <StackPanel>
@@ -227,7 +227,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <Border Grid.Column="0" Width="10" Height="10" CornerRadius="3" Background="{StaticResource AccentRedBrush}" Margin="0,0,10,0"/>
-                                    <TextBlock Grid.Column="1" Text="Critical Threats" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Txt[SeverityCritical]}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
                                     <TextBlock Grid.Column="2" Text="3" FontSize="12" FontWeight="Bold" Foreground="White" FontFamily="{StaticResource FontMono}"/>
                                 </Grid>
                                 <Grid Margin="0,0,0,7">
@@ -237,7 +237,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <Border Grid.Column="0" Width="10" Height="10" CornerRadius="3" Background="{StaticResource AccentOrangeBrush}" Margin="0,0,10,0"/>
-                                    <TextBlock Grid.Column="1" Text="Warnings / LOLBins" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Txt[SeverityWarningLol]}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
                                     <TextBlock Grid.Column="2" Text="4" FontSize="12" FontWeight="Bold" Foreground="White" FontFamily="{StaticResource FontMono}"/>
                                 </Grid>
                                 <Grid Margin="0,0,0,7">
@@ -247,7 +247,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <Border Grid.Column="0" Width="10" Height="10" CornerRadius="3" Background="{StaticResource AccentBlueBrush}" Margin="0,0,10,0"/>
-                                    <TextBlock Grid.Column="1" Text="Informational logs" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Txt[SeverityInfoLogs]}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
                                     <TextBlock Grid.Column="2" Text="6" FontSize="12" FontWeight="Bold" Foreground="White" FontFamily="{StaticResource FontMono}"/>
                                 </Grid>
                                 <Grid>
@@ -257,7 +257,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <Border Grid.Column="0" Width="10" Height="10" CornerRadius="3" Background="{StaticResource AccentGreenBrush}" Margin="0,0,10,0"/>
-                                    <TextBlock Grid.Column="1" Text="Notable Network logons" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Txt[SeverityLogons]}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
                                     <TextBlock Grid.Column="2" Text="1" FontSize="12" FontWeight="Bold" Foreground="White" FontFamily="{StaticResource FontMono}"/>
                                 </Grid>
                             </StackPanel>
@@ -268,7 +268,7 @@
                     <Border Style="{StaticResource GlassPanel}" Margin="0">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,14">
-                                <TextBlock Text="Artifact Activity (24h)" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding Txt[DashArtifactActivity]}" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                     <Border Background="#263b82f6" BorderBrush="#513b82f6" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,4,0">
                                         <TextBlock Text=".evtx" FontSize="9" Foreground="{StaticResource AccentBlueBrush}" FontWeight="Bold"/>
@@ -329,7 +329,7 @@
                     <Grid DockPanel.Dock="Top" Margin="0,0,0,12">
                         <StackPanel Orientation="Horizontal">
                             <ContentControl Content="{StaticResource IconBrain}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentPurpleBrush}" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="AI Executive Summary" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Txt[DashExecSummary]}" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
                         </StackPanel>
                         <Border Background="#268b5cf6" BorderBrush="#518b5cf6" BorderThickness="1" CornerRadius="10" Padding="10,3" HorizontalAlignment="Right">
                             <TextBlock Text="OLLAMA LOCAL LLM" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentPurpleBrush}"/>
@@ -340,12 +340,12 @@
                             Command="{Binding NavigateCommand}" CommandParameter="ai">
                         <StackPanel Orientation="Horizontal">
                             <ContentControl Content="{StaticResource IconBrain}" Style="{StaticResource DfirIcon}" Foreground="White" Margin="0,0,8,0"/>
-                            <TextBlock Text="Open full analysis in AI Analyst" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Txt[OpenFullAnalysis]}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
                     <Border Background="#3B000000" CornerRadius="8" Padding="14" BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="1">
-                        <TextBlock Text="High-confidence intrusion on FIN-WKS-07 beginning 14:02 UTC. Living-off-the-land chain: USB delivery → obfuscated PowerShell → C2 to 185.220.101.47 → Run-key + service persistence → timestomp &amp; log clearing → destruction of 847 files. Shadow copies deleted. Lateral logon to a peer host observed. Recommend immediate isolation and memory capture before shutdown."
+                        <TextBlock Text="{Binding Txt[ExecSummaryText]}"
                                    Foreground="{StaticResource TextSecondaryBrush}" FontSize="12.5" LineHeight="20" TextWrapping="Wrap"/>
                     </Border>
                 </DockPanel>

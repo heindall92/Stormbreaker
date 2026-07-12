@@ -67,9 +67,9 @@
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <ContentControl Content="{StaticResource IconSettings}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentCyanBrush}" Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                    <TextBlock Text="Settings &amp; Backends" FontSize="19" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding Txt[SettingsHeader]}" FontSize="19" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
                 </StackPanel>
-                <TextBlock Text="Configure local AI parameters, endpoints and forensic extraction engines" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,0"/>
+                <TextBlock Text="{Binding Txt[SettingsSub]}" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,0"/>
             </StackPanel>
         </Grid>
 
@@ -88,21 +88,21 @@
                         <Grid DockPanel.Dock="Top" Margin="0,0,0,16">
                             <StackPanel Orientation="Horizontal">
                                 <ContentControl Content="{StaticResource IconCpu}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentCyanBrush}" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="Ollama Integration" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding Txt[OllamaHeader]}" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Grid>
 
                         <!-- Form contents -->
                         <StackPanel>
                             <!-- API Endpoint -->
-                            <TextBlock Text="Ollama API Endpoint" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,6"/>
+                             <TextBlock Text="{Binding Txt[OllamaEndpoint]}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,6"/>
                             <Border BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="1" Background="#40000000" CornerRadius="8" Padding="12,8" Margin="0,0,0,14">
                                 <TextBox Background="Transparent" BorderThickness="0" Foreground="White" FontSize="13" VerticalAlignment="Center" CaretBrush="{StaticResource AccentCyanBrush}"
                                          Text="{Binding OllamaEndpoint, UpdateSourceTrigger=PropertyChanged}"/>
                             </Border>
 
                             <!-- Model Name -->
-                            <TextBlock Text="Model Name" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,6"/>
+                             <TextBlock Text="{Binding Txt[ModelName]}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,6"/>
                             <Border BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="1" Background="#40000000" CornerRadius="8" Padding="12,8" Margin="0,0,0,8">
                                 <TextBox Background="Transparent" BorderThickness="0" Foreground="White" FontSize="13" VerticalAlignment="Center" CaretBrush="{StaticResource AccentCyanBrush}"
                                          Text="{Binding SelectedModel, UpdateSourceTrigger=PropertyChanged}"/>
@@ -120,7 +120,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <!-- Test Action -->
-                                    <Button Grid.Column="0" Style="{StaticResource BtnGlass}" Content="Test Connection" HorizontalAlignment="Left" Padding="14,6"
+                                     <Button Grid.Column="0" Style="{StaticResource BtnGlass}" Content="{Binding Txt[BtnTestConn]}" HorizontalAlignment="Left" Padding="14,6"
                                             Command="{Binding TestOllamaCommand}"/>
 
                                     <!-- Status Message Grid -->
@@ -177,7 +177,35 @@
                                        FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16" TextWrapping="Wrap"/>
 
                             <!-- Save Configuration -->
-                            <Button Style="{StaticResource BtnPrimary}" Content="Save configuration" Command="{Binding SaveSettingsCommand}" HorizontalAlignment="Left"/>
+                             <Button Style="{StaticResource BtnPrimary}" Content="{Binding Txt[BtnSaveConfig]}" Command="{Binding SaveSettingsCommand}" HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+
+                <!-- Language & Local Execution Card -->
+                <Border Style="{StaticResource GlassPanel}">
+                    <DockPanel>
+                        <!-- Header -->
+                        <Grid DockPanel.Dock="Top" Margin="0,0,0,16">
+                            <StackPanel Orientation="Horizontal">
+                                <ContentControl Content="{StaticResource IconNetwork}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentCyanBrush}" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding Txt[LangHeader]}" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel>
+                            <!-- Language Dropdown -->
+                            <TextBlock Text="{Binding Txt[LangSelectLabel]}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,6"/>
+                            <Border BorderBrush="{StaticResource GlassBorderBrush}" BorderThickness="1" Background="#40000000" CornerRadius="8" Padding="10,4" Margin="0,0,0,14">
+                                <ComboBox SelectedValuePath="Tag" SelectedValue="{Binding SelectedLanguage, Mode=TwoWay}" Background="Transparent" Foreground="White" BorderThickness="0" FontSize="13" VerticalAlignment="Center">
+                                    <ComboBoxItem Content="Español" Tag="es" Foreground="Black"/>
+                                    <ComboBoxItem Content="English" Tag="en" Foreground="Black"/>
+                                </ComboBox>
+                            </Border>
+
+                            <!-- Mode Selector Toggle -->
+                            <TextBlock Text="{Binding Txt[SettingsModeLabel]}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,6"/>
+                            <CheckBox Content="{Binding Txt[SettingsDemoMode]}" IsChecked="{Binding IsDemoMode, Mode=TwoWay}" Foreground="White" Cursor="Hand" Margin="0,0,0,4"/>
                         </StackPanel>
                     </DockPanel>
                 </Border>
@@ -192,7 +220,7 @@
                         <Grid DockPanel.Dock="Top" Margin="0,0,0,16">
                             <StackPanel Orientation="Horizontal">
                                 <ContentControl Content="{StaticResource IconDatabase}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentPurpleBrush}" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="DFIR Backend Status" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
+                                 <TextBlock Text="{Binding Txt[BackendHeader]}" FontSize="13.5" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Grid>
 
@@ -251,18 +279,17 @@
                         <Grid DockPanel.Dock="Top" Margin="0,0,0,14">
                             <StackPanel Orientation="Horizontal">
                                 <ContentControl Content="{StaticResource IconInfo}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource TextSecondaryBrush}" Width="15" Height="15" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="About Stormbreaker Console" FontSize="13" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
+                                 <TextBlock Text="{Binding Txt[AboutHeader]}" FontSize="13" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Grid>
 
                         <StackPanel>
                             <TextBlock Text="Stormbreaker DFIR Security Suite" FontSize="12" FontWeight="Bold" Foreground="White"/>
-                            <TextBlock Text="Version: v1.2.0-beta (Core Edition)" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
-                            <TextBlock Text="License: Proprietary · Incident Response Core Authorized Use" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,2,0,0"/>
+                             <TextBlock Text="{Binding Txt[AboutVersion]}" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                             <TextBlock Text="{Binding Txt[AboutLicense]}" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,2,0,0"/>
                             
                             <Border Background="#1FFFFFFF" Height="1" Margin="0,12"/>
-                            
-                            <TextBlock Text="Local Data Directory" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,4"/>
+                                                        <TextBlock Text="{Binding Txt[AboutDataDir]}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,4"/>
                             <TextBlock Text="C:\Users\yoand\.gemini\antigravity\brain" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}" FontFamily="{StaticResource FontMono}" TextWrapping="Wrap"/>
                         </StackPanel>
                     </DockPanel>

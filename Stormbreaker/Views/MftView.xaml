@@ -70,9 +70,9 @@
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <ContentControl Content="{StaticResource IconHardDrive}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentCyanBrush}" Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                    <TextBlock Text="MFT / NTFS Explorer" FontSize="19" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding Txt[MftHeader]}" FontSize="19" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
                 </StackPanel>
-                <TextBlock Text="$MFT records with $STANDARD_INFO vs $FILE_NAME timestamp comparison — mismatches flag anti-forensic timestomping" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,0"/>
+                <TextBlock Text="{Binding Txt[MftSub]}" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,0"/>
             </StackPanel>
             
             <Border Background="#1F00d4ff" BorderBrush="#5100d4ff" BorderThickness="1" CornerRadius="12" Padding="12,4" HorizontalAlignment="Right" VerticalAlignment="Center">
@@ -80,7 +80,7 @@
                     <TextBlock Text="{Binding FilteredMft.Count, FallbackValue=0}" Foreground="{StaticResource AccentCyanBrush}" FontWeight="Bold"/>
                     <TextBlock Text=" / " Foreground="{StaticResource TextMutedBrush}"/>
                     <TextBlock Text="{Binding Mft.Count, FallbackValue=0}" Foreground="{StaticResource TextMutedBrush}"/>
-                    <TextBlock Text=" records" Foreground="{StaticResource TextMutedBrush}"/>
+                    <TextBlock Text="{Binding Txt[MftCountSuffix]}" Foreground="{StaticResource TextMutedBrush}"/>
                 </StackPanel>
             </Border>
         </Grid>
@@ -96,13 +96,13 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
-                        <TextBlock Text="MFT Records (triage)" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource TextMutedBrush}"/>
+                        <TextBlock Text="{Binding Txt[KpiMft]}" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource TextMutedBrush}"/>
                         <Border Width="30" Height="30" CornerRadius="8" Background="#1F8b5cf6" HorizontalAlignment="Right" VerticalAlignment="Center">
                             <ContentControl Content="{StaticResource IconHardDrive}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentPurpleBrush}" Width="16" Height="16"/>
                         </Border>
                     </Grid>
                     <TextBlock Grid.Row="1" Text="{Binding MftTotalCount, FallbackValue=10}" FontSize="25" FontWeight="Bold" Foreground="White" Margin="0,6,0,0"/>
-                    <TextBlock Grid.Row="2" Text="of 1.24M indexed" FontSize="11" FontWeight="Medium" Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,0"/>
+                    <TextBlock Grid.Row="2" Text="{Binding Txt[MftIndexed]}" FontSize="11" FontWeight="Medium" Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,0"/>
                 </Grid>
             </Border>
 
@@ -115,13 +115,13 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
-                        <TextBlock Text="Timestomp Flags" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource TextMutedBrush}"/>
+                        <TextBlock Text="{Binding Txt[MftKpiTimestomp]}" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource TextMutedBrush}"/>
                         <Border Width="30" Height="30" CornerRadius="8" Background="#1Fef4444" HorizontalAlignment="Right" VerticalAlignment="Center">
                             <ContentControl Content="{StaticResource IconAlert}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentRedBrush}" Width="16" Height="16"/>
                         </Border>
                     </Grid>
                     <TextBlock Grid.Row="1" Text="{Binding MftTimestompCount, FallbackValue=3}" FontSize="25" FontWeight="Bold" Foreground="White" Margin="0,6,0,0"/>
-                    <TextBlock Grid.Row="2" Text="$SI backdated" FontSize="11" FontWeight="Medium" Foreground="{StaticResource AccentRedBrush}" Margin="0,4,0,0"/>
+                    <TextBlock Grid.Row="2" Text="{Binding Txt[MftSiBackdated]}" FontSize="11" FontWeight="Medium" Foreground="{StaticResource AccentRedBrush}" Margin="0,4,0,0"/>
                 </Grid>
             </Border>
 
@@ -153,13 +153,13 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
-                        <TextBlock Text="Zeroed Files" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource TextMutedBrush}"/>
+                        <TextBlock Text="{Binding Txt[MftZeroedFiles]}" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource TextMutedBrush}"/>
                         <Border Width="30" Height="30" CornerRadius="8" Background="#1Ff59e0b" HorizontalAlignment="Right" VerticalAlignment="Center">
                             <ContentControl Content="{StaticResource IconTrash}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentOrangeBrush}" Width="16" Height="16"/>
                         </Border>
                     </Grid>
                     <TextBlock Grid.Row="1" Text="{Binding MftZeroedCount, FallbackValue=2}" FontSize="25" FontWeight="Bold" Foreground="White" Margin="0,6,0,0"/>
-                    <TextBlock Grid.Row="2" Text="data destruction" FontSize="11" FontWeight="Medium" Foreground="{StaticResource AccentRedBrush}" Margin="0,4,0,0"/>
+                    <TextBlock Grid.Row="2" Text="{Binding Txt[MftDataDestruction]}" FontSize="11" FontWeight="Medium" Foreground="{StaticResource AccentRedBrush}" Margin="0,4,0,0"/>
                 </Grid>
             </Border>
         </UniformGrid>
@@ -198,7 +198,7 @@
                     <ToggleButton Grid.Column="1" Style="{StaticResource ChipToggleButton}" IsChecked="{Binding MftStompOnly, Mode=TwoWay}">
                         <StackPanel Orientation="Horizontal">
                             <ContentControl Content="{StaticResource IconAlert}" Style="{StaticResource DfirIcon}" Width="13" Height="13" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="Show timestomped only" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Txt[MftStompOnly]}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ToggleButton>
                 </Grid>
@@ -215,12 +215,12 @@
                             <ColumnDefinition Width="1.5*"/>   <!-- Assessment -->
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="REC #" FontWeight="Bold" FontSize="10" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="1" Text="PATH" FontWeight="Bold" FontSize="10" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="2" Text="SIZE" FontWeight="Bold" FontSize="10" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="3" Text="$SI CREATED" FontWeight="Bold" FontSize="10" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="4" Text="$FN CREATED" FontWeight="Bold" FontSize="10" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="5" Text="ASSESSMENT · NOTES" FontWeight="Bold" FontSize="10" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="{Binding Txt[ColRec]}" FontWeight="Bold" FontSize="10" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Txt[ColFilePath]}" FontWeight="Bold" FontSize="10" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="2" Text="{Binding Txt[ColSize]}" FontWeight="Bold" FontSize="10" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="3" Text="{Binding Txt[ColSiCreated]}" FontWeight="Bold" FontSize="10" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="4" Text="{Binding Txt[ColFnCreated]}" FontWeight="Bold" FontSize="10" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="5" Text="{Binding Txt[ColAssessment]}" FontWeight="Bold" FontSize="10" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
                     </Grid>
                 </Border>
 

@@ -7,7 +7,7 @@
         xmlns:views="clr-namespace:Stormbreaker.Views"
         xmlns:viewmodels="clr-namespace:Stormbreaker.ViewModels"
         mc:Ignorable="d"
-        Title="Stormbreaker — DFIR Console" 
+        Title="{Binding Txt[Title]}" 
         Height="780" Width="1240"
         MinHeight="600" MinWidth="1000"
         WindowStartupLocation="CenterScreen">
@@ -207,7 +207,7 @@
                                 </Grid.ColumnDefinitions>
                                 <ContentControl Grid.Column="0" Content="{StaticResource IconLayoutGrid}" Style="{StaticResource DfirIcon}" HorizontalAlignment="Center" VerticalAlignment="Center"
                                                 Foreground="{Binding CurrentView, Converter={StaticResource ActiveViewToForeground}, ConverterParameter=dashboard}"/>
-                                <TextBlock Grid.Column="1" Text="Dashboard" VerticalAlignment="Center" FontSize="12.5" FontWeight="Medium"
+                                <TextBlock Grid.Column="1" Text="{Binding Txt[Dashboard]}" VerticalAlignment="Center" FontSize="12.5" FontWeight="Medium"
                                            Foreground="{Binding CurrentView, Converter={StaticResource ActiveViewToForeground}, ConverterParameter=dashboard}"
                                            Visibility="{Binding DataContext.IsSidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
                             </Grid>
@@ -233,7 +233,7 @@
                                     <TextBlock Text="3" Foreground="White" FontSize="8.5" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
 
-                                <TextBlock Grid.Column="1" Text="Event Logs" VerticalAlignment="Center" FontSize="12.5" FontWeight="Medium"
+                                <TextBlock Grid.Column="1" Text="{Binding Txt[Events]}" VerticalAlignment="Center" FontSize="12.5" FontWeight="Medium"
                                            Foreground="{Binding CurrentView, Converter={StaticResource ActiveViewToForeground}, ConverterParameter=events}"
                                            Visibility="{Binding DataContext.IsSidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
                                 
@@ -256,7 +256,7 @@
                                 </Grid.ColumnDefinitions>
                                 <ContentControl Grid.Column="0" Content="{StaticResource IconHardDrive}" Style="{StaticResource DfirIcon}" HorizontalAlignment="Center" VerticalAlignment="Center"
                                                 Foreground="{Binding CurrentView, Converter={StaticResource ActiveViewToForeground}, ConverterParameter=mft}"/>
-                                <TextBlock Grid.Column="1" Text="MFT Triage" VerticalAlignment="Center" FontSize="12.5" FontWeight="Medium"
+                                <TextBlock Grid.Column="1" Text="{Binding Txt[Mft]}" VerticalAlignment="Center" FontSize="12.5" FontWeight="Medium"
                                            Foreground="{Binding CurrentView, Converter={StaticResource ActiveViewToForeground}, ConverterParameter=mft}"
                                            Visibility="{Binding DataContext.IsSidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
                             </Grid>
@@ -273,7 +273,7 @@
                                 </Grid.ColumnDefinitions>
                                 <ContentControl Grid.Column="0" Content="{StaticResource IconClock}" Style="{StaticResource DfirIcon}" HorizontalAlignment="Center" VerticalAlignment="Center"
                                                 Foreground="{Binding CurrentView, Converter={StaticResource ActiveViewToForeground}, ConverterParameter=timeline}"/>
-                                <TextBlock Grid.Column="1" Text="Super Timeline" VerticalAlignment="Center" FontSize="12.5" FontWeight="Medium"
+                                <TextBlock Grid.Column="1" Text="{Binding Txt[Timeline]}" VerticalAlignment="Center" FontSize="12.5" FontWeight="Medium"
                                            Foreground="{Binding CurrentView, Converter={StaticResource ActiveViewToForeground}, ConverterParameter=timeline}"
                                            Visibility="{Binding DataContext.IsSidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
                             </Grid>
@@ -290,7 +290,7 @@
                                 </Grid.ColumnDefinitions>
                                 <ContentControl Grid.Column="0" Content="{StaticResource IconGitMerge}" Style="{StaticResource DfirIcon}" HorizontalAlignment="Center" VerticalAlignment="Center"
                                                 Foreground="{Binding CurrentView, Converter={StaticResource ActiveViewToForeground}, ConverterParameter=correlation}"/>
-                                <TextBlock Grid.Column="1" Text="Attack Map" VerticalAlignment="Center" FontSize="12.5" FontWeight="Medium"
+                                <TextBlock Grid.Column="1" Text="{Binding Txt[Correlation]}" VerticalAlignment="Center" FontSize="12.5" FontWeight="Medium"
                                            Foreground="{Binding CurrentView, Converter={StaticResource ActiveViewToForeground}, ConverterParameter=correlation}"
                                            Visibility="{Binding DataContext.IsSidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
                             </Grid>
@@ -307,7 +307,7 @@
                                 </Grid.ColumnDefinitions>
                                 <ContentControl Grid.Column="0" Content="{StaticResource IconBrain}" Style="{StaticResource DfirIcon}" HorizontalAlignment="Center" VerticalAlignment="Center"
                                                 Foreground="{Binding CurrentView, Converter={StaticResource ActiveViewToForeground}, ConverterParameter=ai}"/>
-                                <TextBlock Grid.Column="1" Text="AI Analyst" VerticalAlignment="Center" FontSize="12.5" FontWeight="Medium"
+                                <TextBlock Grid.Column="1" Text="{Binding Txt[Ai]}" VerticalAlignment="Center" FontSize="12.5" FontWeight="Medium"
                                            Foreground="{Binding CurrentView, Converter={StaticResource ActiveViewToForeground}, ConverterParameter=ai}"
                                            Visibility="{Binding DataContext.IsSidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
                             </Grid>
@@ -324,7 +324,7 @@
                                 </Grid.ColumnDefinitions>
                                 <ContentControl Grid.Column="0" Content="{StaticResource IconFileSearch}" Style="{StaticResource DfirIcon}" HorizontalAlignment="Center" VerticalAlignment="Center"
                                                 Foreground="{Binding CurrentView, Converter={StaticResource ActiveViewToForeground}, ConverterParameter=reports}"/>
-                                <TextBlock Grid.Column="1" Text="Reports &amp; IOCs" VerticalAlignment="Center" FontSize="12.5" FontWeight="Medium"
+                                <TextBlock Grid.Column="1" Text="{Binding Txt[Reports]}" VerticalAlignment="Center" FontSize="12.5" FontWeight="Medium"
                                            Foreground="{Binding CurrentView, Converter={StaticResource ActiveViewToForeground}, ConverterParameter=reports}"
                                            Visibility="{Binding DataContext.IsSidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
                             </Grid>
@@ -344,7 +344,7 @@
                                 </Grid.ColumnDefinitions>
                                 <ContentControl Grid.Column="0" Content="{StaticResource IconSettings}" Style="{StaticResource DfirIcon}" HorizontalAlignment="Center" VerticalAlignment="Center"
                                                 Foreground="{Binding CurrentView, Converter={StaticResource ActiveViewToForeground}, ConverterParameter=settings}"/>
-                                <TextBlock Grid.Column="1" Text="Settings" VerticalAlignment="Center" FontSize="12.5" FontWeight="Medium"
+                                <TextBlock Grid.Column="1" Text="{Binding Txt[Settings]}" VerticalAlignment="Center" FontSize="12.5" FontWeight="Medium"
                                            Foreground="{Binding CurrentView, Converter={StaticResource ActiveViewToForeground}, ConverterParameter=settings}"
                                            Visibility="{Binding DataContext.IsSidebarExpanded, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
                             </Grid>
@@ -365,7 +365,7 @@
                         </Border>
 
                         <!-- User Profile Card -->
-                        <Grid Margin="11,4" Cursor="Hand" ToolTip="Analista — Yoandy R.">
+                        <Grid Margin="11,4" Cursor="Hand" ToolTip="{Binding Txt[AnalystTooltip]}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="48"/>
                                 <ColumnDefinition Width="*"/>
@@ -386,7 +386,7 @@
                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0"
                                         Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVis}}">
                                 <TextBlock Text="Yoandy R." Foreground="White" FontSize="12.5" FontWeight="Bold"/>
-                                <TextBlock Text="DFIR Analyst" Foreground="{StaticResource TextMutedBrush}" FontSize="9.5" FontWeight="SemiBold" Margin="0,1,0,0"/>
+                                <TextBlock Text="{Binding Txt[AnalystRole]}" Foreground="{StaticResource TextMutedBrush}" FontSize="9.5" FontWeight="SemiBold" Margin="0,1,0,0"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
@@ -451,19 +451,19 @@
                             <Button Style="{StaticResource BtnGlass}" Command="{Binding ToggleImportModalCommand}" Margin="0,0,10,0">
                                 <StackPanel Orientation="Horizontal">
                                     <ContentControl Content="{StaticResource IconUpload}" Style="{StaticResource DfirIcon}" Margin="0,0,8,0"/>
-                                    <TextBlock Text="Import Evidence" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Txt[ImportEvidence]}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Style="{StaticResource BtnGlass}" Command="{Binding QuickScanCommand}" Margin="0,0,10,0" IsEnabled="{Binding IsScanning, Converter={StaticResource InverseBoolToVis}}">
                                 <StackPanel Orientation="Horizontal">
                                     <ContentControl Content="{StaticResource IconZap}" Style="{StaticResource DfirIcon}" Margin="0,0,8,0"/>
-                                    <TextBlock Text="Quick Scan" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Txt[QuickScan]}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Style="{StaticResource BtnPrimary}" Command="{Binding RunAiAnalysisCommand}" CommandParameter="">
                                 <StackPanel Orientation="Horizontal">
                                     <ContentControl Content="{StaticResource IconBrain}" Style="{StaticResource DfirIcon}" Foreground="White" Margin="0,0,8,0"/>
-                                    <TextBlock Text="Generate AI Report" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Txt[GenerateReport]}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -622,7 +622,7 @@
                         
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <ContentControl Content="{StaticResource IconUpload}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentCyanBrush}" Margin="0,0,10,0" Width="18" Height="18"/>
-                            <TextBlock Text="Import Forensic Evidence" FontSize="16" FontWeight="Bold" Foreground="White"/>
+                            <TextBlock Text="{Binding Txt[ImportHeader]}" FontSize="16" FontWeight="Bold" Foreground="White"/>
                         </StackPanel>
                         
                         <Button Grid.Column="1" Style="{StaticResource BtnGlass}" Width="30" Height="30" Padding="0" 
@@ -635,10 +635,13 @@
                     <StackPanel Grid.Row="1">
                         <!-- Dropzone simulated border -->
                         <Border BorderBrush="{StaticResource GlassBorderLightBrush}" BorderThickness="1.5" CornerRadius="14" Background="#26000000" Padding="34,20" Cursor="Hand">
+                            <Border.InputBindings>
+                                <MouseBinding MouseAction="LeftClick" Command="{Binding ImportFileCommand}"/>
+                            </Border.InputBindings>
                             <StackPanel HorizontalAlignment="Center">
                                 <ContentControl Content="{StaticResource IconHardDrive}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentCyanBrush}" Width="38" Height="38" HorizontalAlignment="Center" Margin="0,0,0,12"/>
-                                <TextBlock Text="Drag forensic artifacts here" FontSize="14" FontWeight="SemiBold" Foreground="White" HorizontalAlignment="Center"/>
-                                <TextBlock Text="or click to browse — parsing runs locally, nothing is uploaded" FontSize="12" Foreground="{StaticResource TextMutedBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                                <TextBlock Text="{Binding Txt[DragDropZone]}" FontSize="14" FontWeight="SemiBold" Foreground="White" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding Txt[OrSelectFolder]}" FontSize="12" Foreground="{StaticResource TextMutedBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
                                 
                                 <!-- File Format Badges -->
                                 <WrapPanel HorizontalAlignment="Center" Margin="0,15,0,0">

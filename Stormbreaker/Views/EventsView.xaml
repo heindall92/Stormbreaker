@@ -121,9 +121,9 @@
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <ContentControl Content="{StaticResource IconFileText}" Style="{StaticResource DfirIcon}" Foreground="{StaticResource AccentCyanBrush}" Width="20" Height="20" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                    <TextBlock Text="Event Logs" FontSize="19" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding Txt[Events]}" FontSize="19" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
                 </StackPanel>
-                <TextBlock Text="Parsed Windows Event Log / Sysmon / PowerShell channels · click a row to expand" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,0"/>
+                <TextBlock Text="{Binding Txt[EventsSub]}" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,0"/>
             </StackPanel>
             
             <Border Background="#1F00d4ff" BorderBrush="#5100d4ff" BorderThickness="1" CornerRadius="12" Padding="12,4" HorizontalAlignment="Right" VerticalAlignment="Center">
@@ -131,7 +131,7 @@
                     <TextBlock Text="{Binding FilteredEvents.Count, FallbackValue=0}" Foreground="{StaticResource AccentCyanBrush}" FontWeight="Bold"/>
                     <TextBlock Text=" / " Foreground="{StaticResource TextMutedBrush}"/>
                     <TextBlock Text="{Binding Events.Count, FallbackValue=0}" Foreground="{StaticResource TextMutedBrush}"/>
-                    <TextBlock Text=" events" Foreground="{StaticResource TextMutedBrush}"/>
+                    <TextBlock Text="{Binding Txt[EventsCountSuffix]}" Foreground="{StaticResource TextMutedBrush}"/>
                 </StackPanel>
             </Border>
         </Grid>
@@ -181,7 +181,7 @@
                                     </Style.Triggers>
                                 </Style>
                             </Button.Style>
-                            <TextBlock Text="All"/>
+                            <TextBlock Text="{Binding Txt[SeverityAll]}"/>
                         </Button>
                         
                         <!-- Critical -->
@@ -198,7 +198,7 @@
                                 </Style>
                             </Button.Style>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Critical"/>
+                                <TextBlock Text="{Binding Txt[SeverityCritical]}"/>
                                 <Border Background="#26ef4444" CornerRadius="4" Padding="4,1" Margin="6,0,0,0" VerticalAlignment="Center">
                                     <TextBlock Text="3" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentRedBrush}"/>
                                 </Border>
@@ -219,7 +219,7 @@
                                 </Style>
                             </Button.Style>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Warning"/>
+                                <TextBlock Text="{Binding Txt[SeverityWarning]}"/>
                                 <Border Background="#26f59e0b" CornerRadius="4" Padding="4,1" Margin="6,0,0,0" VerticalAlignment="Center">
                                     <TextBlock Text="4" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentOrangeBrush}"/>
                                 </Border>
@@ -240,7 +240,7 @@
                                 </Style>
                             </Button.Style>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Info"/>
+                                <TextBlock Text="{Binding Txt[SeverityInfo]}"/>
                                 <Border Background="#263b82f6" CornerRadius="4" Padding="4,1" Margin="6,0,0,0" VerticalAlignment="Center">
                                     <TextBlock Text="6" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentBlueBrush}"/>
                                 </Border>
@@ -261,7 +261,7 @@
                                 </Style>
                             </Button.Style>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Notable"/>
+                                <TextBlock Text="{Binding Txt[SeverityNotable]}"/>
                                 <Border Background="#2622c55e" CornerRadius="4" Padding="4,1" Margin="6,0,0,0" VerticalAlignment="Center">
                                     <TextBlock Text="1" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentGreenBrush}"/>
                                 </Border>
@@ -283,13 +283,13 @@
                             <ColumnDefinition Width="*"/>   <!-- Message -->
                         </Grid.ColumnDefinitions>
 
-                        <Button Grid.Column="0" Style="{StaticResource TableHeaderButton}" Content="TIME" Command="{Binding SortEventsCommand}" CommandParameter="t"/>
-                        <Button Grid.Column="1" Style="{StaticResource TableHeaderButton}" Content="EID" Command="{Binding SortEventsCommand}" CommandParameter="id"/>
-                        <Button Grid.Column="2" Style="{StaticResource TableHeaderButton}" Content="CHANNEL" Command="{Binding SortEventsCommand}" CommandParameter="ch"/>
-                        <Button Grid.Column="3" Style="{StaticResource TableHeaderButton}" Content="LEVEL" Command="{Binding SortEventsCommand}" CommandParameter="lvl"/>
-                        <Button Grid.Column="4" Style="{StaticResource TableHeaderButton}" Content="SOURCE" Command="{Binding SortEventsCommand}" CommandParameter="src"/>
-                        <Button Grid.Column="5" Style="{StaticResource TableHeaderButton}" Content="USER" Command="{Binding SortEventsCommand}" CommandParameter="user"/>
-                        <TextBlock Grid.Column="6" Text="MESSAGE · ATT&amp;CK" FontWeight="Bold" FontSize="10" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
+                        <Button Grid.Column="0" Style="{StaticResource TableHeaderButton}" Content="{Binding Txt[ColTime]}" Command="{Binding SortEventsCommand}" CommandParameter="t"/>
+                        <Button Grid.Column="1" Style="{StaticResource TableHeaderButton}" Content="{Binding Txt[ColEid]}" Command="{Binding SortEventsCommand}" CommandParameter="id"/>
+                        <Button Grid.Column="2" Style="{StaticResource TableHeaderButton}" Content="{Binding Txt[ColChannel]}" Command="{Binding SortEventsCommand}" CommandParameter="ch"/>
+                        <Button Grid.Column="3" Style="{StaticResource TableHeaderButton}" Content="{Binding Txt[ColLevel]}" Command="{Binding SortEventsCommand}" CommandParameter="lvl"/>
+                        <Button Grid.Column="4" Style="{StaticResource TableHeaderButton}" Content="{Binding Txt[ColSource]}" Command="{Binding SortEventsCommand}" CommandParameter="src"/>
+                        <Button Grid.Column="5" Style="{StaticResource TableHeaderButton}" Content="{Binding Txt[ColUser]}" Command="{Binding SortEventsCommand}" CommandParameter="user"/>
+                        <TextBlock Grid.Column="6" Text="{Binding Txt[ColMsgMitre]}" FontWeight="Bold" FontSize="10" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
                     </Grid>
                 </Border>
 
@@ -387,15 +387,15 @@
                                             </Grid.RowDefinitions>
 
                                             <!-- Timestamp -->
-                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Timestamp (UTC)" Foreground="{StaticResource TextMutedBrush}" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,6"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Txt[DetailTimestamp]}" Foreground="{StaticResource TextMutedBrush}" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,6"/>
                                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Ts}" Foreground="White" FontFamily="{StaticResource FontMono}" FontSize="12" Margin="0,0,0,6"/>
 
                                             <!-- Process ID -->
-                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Process ID" Foreground="{StaticResource TextMutedBrush}" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,6"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Txt[DetailPid]}" Foreground="{StaticResource TextMutedBrush}" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,6"/>
                                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Pid}" Foreground="White" FontFamily="{StaticResource FontMono}" FontSize="12" Margin="0,0,0,6"/>
 
                                             <!-- MITRE -->
-                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="ATT&amp;CK ID(s)" Foreground="{StaticResource TextMutedBrush}" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,6"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding Txt[DetailMitre]}" Foreground="{StaticResource TextMutedBrush}" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,6"/>
                                             <!-- Join mitre array with comma -->
                                             <ItemsControl Grid.Row="2" Grid.Column="1" ItemsSource="{Binding Mitre}" Margin="0,0,0,6" Focusable="False">
                                                 <ItemsControl.ItemsPanel>
@@ -411,7 +411,7 @@
                                             </ItemsControl>
 
                                             <!-- Dynamic Key Value Detail properties -->
-                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Event Details" Foreground="{StaticResource TextMutedBrush}" FontWeight="SemiBold" FontSize="12"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding Txt[DetailHeader]}" Foreground="{StaticResource TextMutedBrush}" FontWeight="SemiBold" FontSize="12"/>
                                             <ItemsControl Grid.Row="3" Grid.Column="1" ItemsSource="{Binding Detail}" Focusable="False">
                                                 <ItemsControl.ItemsPanel>
                                                     <ItemsPanelTemplate>
