@@ -569,6 +569,8 @@ public partial class MainWindow : Window
         [".map"] = "application/json",
     };
 
+    private static readonly string WwwrootPath = Path.Combine(AppContext.BaseDirectory, "wwwroot");
+
     public MainWindow()
     {
         InitializeComponent();
@@ -584,8 +586,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        var wwwrootPath = Path.Combine(AppContext.BaseDirectory, "wwwroot");
-        if (!File.Exists(Path.Combine(wwwrootPath, "_shell.html")))
+        if (!File.Exists(Path.Combine(WwwrootPath, "_shell.html")))
         {
             ErrorWindow.ShowMissingContent();
             Close();
@@ -603,25 +604,33 @@ public partial class MainWindow : Window
 
     private void OnWebResourceRequested(object? sender, CoreWebView2WebResourceRequestedEventArgs e)
     {
-        var requestPath = new Uri(e.Request.Uri).AbsolutePath;
-        var wwwrootPath = Path.Combine(AppContext.BaseDirectory, "wwwroot");
-
-        // "/" has no literal file on disk (the prerendered SPA shell is named
-        // _shell.html, not index.html) — treat it as a default-document alias
-        // for the shell, independent of SpaFallbackResolver's unknown-route logic.
-        if (requestPath == "/")
+        try
         {
-            RespondWithFile(e, Path.Combine(wwwrootPath, "_shell.html"));
-            return;
+            var requestPath = new Uri(e.Request.Uri).AbsolutePath;
+
+            // "/" has no literal file on disk (the prerendered SPA shell is named
+            // _shell.html, not index.html) — treat it as a default-document alias
+            // for the shell, independent of SpaFallbackResolver's unknown-route logic.
+            if (requestPath == "/")
+            {
+                RespondWithFile(e, Path.Combine(WwwrootPath, "_shell.html"));
+                return;
+            }
+
+            var relativePath = requestPath.TrimStart('/');
+            var candidatePath = Path.Combine(WwwrootPath, relativePath);
+
+            var fallback = SpaFallbackResolver.ShouldFallbackToShell(
+                requestPath, _ => File.Exists(candidatePath));
+
+            RespondWithFile(e, fallback ? Path.Combine(WwwrootPath, "_shell.html") : candidatePath);
         }
-
-        var relativePath = requestPath.TrimStart('/');
-        var candidatePath = Path.Combine(wwwrootPath, relativePath);
-
-        var fallback = SpaFallbackResolver.ShouldFallbackToShell(
-            requestPath, p => File.Exists(Path.Combine(wwwrootPath, p.TrimStart('/'))));
-
-        RespondWithFile(e, fallback ? Path.Combine(wwwrootPath, "_shell.html") : candidatePath);
+        catch
+        {
+            // A locked file, AV scan, or transient disk error here should degrade to a
+            // single failed resource load, not crash the app on the WPF dispatcher.
+            RespondNotFound(e);
+        }
     }
 
     private void RespondWithFile(CoreWebView2WebResourceRequestedEventArgs e, string filePath)
@@ -629,16 +638,20 @@ public partial class MainWindow : Window
         // Manually serving files (instead of SetVirtualHostNameToFolderMapping,
         // which normalizes and contains paths itself) means path traversal must
         // be guarded explicitly here.
-        var wwwrootPath = Path.Combine(AppContext.BaseDirectory, "wwwroot");
-        var fullWwwroot = Path.GetFullPath(wwwrootPath);
+        var fullWwwroot = Path.GetFullPath(WwwrootPath);
         var fullFilePath = Path.GetFullPath(filePath);
         if (!fullFilePath.StartsWith(fullWwwroot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
             && !string.Equals(fullFilePath, fullWwwroot, StringComparison.OrdinalIgnoreCase))
         {
+            RespondNotFound(e);
             return;
         }
 
-        if (!File.Exists(fullFilePath)) return;
+        if (!File.Exists(fullFilePath))
+        {
+            RespondNotFound(e);
+            return;
+        }
 
         var mimeType = MimeTypesByExtension.TryGetValue(Path.GetExtension(fullFilePath), out var mapped)
             ? mapped
@@ -648,10 +661,15 @@ public partial class MainWindow : Window
         e.Response = Browser.CoreWebView2.Environment.CreateWebResourceResponse(
             stream, 200, "OK", $"Content-Type: {mimeType}");
     }
+
+    private void RespondNotFound(CoreWebView2WebResourceRequestedEventArgs e)
+    {
+        e.Response = Browser.CoreWebView2.Environment.CreateWebResourceResponse(null, 404, "Not Found", "");
+    }
 }
 ```
 
-Note this also removes the `SetVirtualHostNameToFolderMapping` call Task 4 added — it's fully superseded by the `WebResourceRequested`-based serving above, per the correction note earlier in this task.
+Note this also removes the `SetVirtualHostNameToFolderMapping` call Task 4 added — it's fully superseded by the `WebResourceRequested`-based serving above, per the correction note earlier in this task. The `RespondNotFound`/try-catch additions were themselves a follow-up fix after code review flagged that blocked/missing requests otherwise fell through to real DNS resolution of the fictitious `.local` host, and that unguarded file I/O in a per-request handler risked crashing the whole app.
 
 - [ ] **Step 7: Run and verify the integration manually**
 
