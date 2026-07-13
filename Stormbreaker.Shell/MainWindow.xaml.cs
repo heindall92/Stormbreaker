@@ -58,7 +58,23 @@ public partial class MainWindow : Window
 
         await Browser.EnsureCoreWebView2Async();
 
-        Browser.CoreWebView2.Settings.IsNonClientRegionSupportEnabled = true;
+        // WindowChrome CaptionHeight="0" (MainWindow.xaml) removes the native title
+        // bar's drag area entirely, so nothing outside the WebView2 surface is
+        // draggable by default. Enabling non-client region support lets the CSS
+        // app-drag-region/app-no-drag utilities (temp_lovable/src/styles.css) mark
+        // parts of the web content as the drag/no-drag surface instead, restoring
+        // window dragging via the custom title-bar pill rendered in HTML.
+        try
+        {
+            Browser.CoreWebView2.Settings.IsNonClientRegionSupportEnabled = true;
+        }
+        catch
+        {
+            // Older/pinned WebView2 Runtimes (plausible on locked-down forensic
+            // workstations without Evergreen auto-update) may not expose this
+            // setting. Degrade to a non-draggable-by-pill window rather than
+            // crashing the whole app.
+        }
 
         Browser.CoreWebView2.AddWebResourceRequestedFilter(
             "https://stormbreaker.local/*", CoreWebView2WebResourceContext.All);
