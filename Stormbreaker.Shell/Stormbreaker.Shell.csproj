@@ -14,4 +14,13 @@
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4078.44" />
   </ItemGroup>
 
+  <Target Name="BuildFrontend" BeforeTargets="Build;Publish">
+    <Exec Command="npm run build" WorkingDirectory="..\temp_lovable" />
+    <ItemGroup>
+      <FrontendAssets Include="..\temp_lovable\dist\client\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(FrontendAssets)"
+          DestinationFiles="@(FrontendAssets->'$(OutDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
 </Project>
