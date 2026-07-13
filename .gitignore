@@ -28,3 +28,7 @@ temp_lovable/.output/
 temp_lovable/.wrangler/
 temp_lovable/tsconfig.tsbuildinfo
 temp_lovable/.workspace/
+
+# Stormbreaker.Shell — frontend assets copied in by the BuildFrontend MSBuild target
+Stormbreaker.Shell/wwwroot/
+publish/
