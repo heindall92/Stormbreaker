@@ -7,6 +7,31 @@ namespace Stormbreaker.Shell;
 
 public partial class MainWindow : Window
 {
+    // WebView2 does not fire WebResourceRequested for a hostname registered via
+    // SetVirtualHostNameToFolderMapping (confirmed platform limitation, see
+    // MicrosoftEdge/WebView2Feedback#4201). So instead of layering the fallback
+    // interceptor on top of the virtual host mapping, this serves the whole
+    // wwwroot tree through WebResourceRequested directly, which both intercepts
+    // reliably and keeps the browser's URL (and therefore the SPA router's
+    // location.pathname) on the originally requested deep-link path.
+    private static readonly Dictionary<string, string> MimeTypesByExtension = new(StringComparer.OrdinalIgnoreCase)
+    {
+        [".html"] = "text/html",
+        [".js"] = "text/javascript",
+        [".mjs"] = "text/javascript",
+        [".css"] = "text/css",
+        [".json"] = "application/json",
+        [".svg"] = "image/svg+xml",
+        [".png"] = "image/png",
+        [".jpg"] = "image/jpeg",
+        [".jpeg"] = "image/jpeg",
+        [".ico"] = "image/x-icon",
+        [".woff"] = "font/woff",
+        [".woff2"] = "font/woff2",
+        [".webp"] = "image/webp",
+        [".map"] = "application/json",
+    };
+
     public MainWindow()
     {
         InitializeComponent();
@@ -32,9 +57,58 @@ public partial class MainWindow : Window
 
         await Browser.EnsureCoreWebView2Async();
 
-        Browser.CoreWebView2.SetVirtualHostNameToFolderMapping(
-            "stormbreaker.local", wwwrootPath, CoreWebView2HostResourceAccessKind.DenyCors);
+        Browser.CoreWebView2.AddWebResourceRequestedFilter(
+            "https://stormbreaker.local/*", CoreWebView2WebResourceContext.All);
+        Browser.CoreWebView2.WebResourceRequested += OnWebResourceRequested;
 
-        Browser.CoreWebView2.Navigate("https://stormbreaker.local/_shell.html");
+        Browser.CoreWebView2.Navigate("https://stormbreaker.local/");
+    }
+
+    private void OnWebResourceRequested(object? sender, CoreWebView2WebResourceRequestedEventArgs e)
+    {
+        var requestPath = new Uri(e.Request.Uri).AbsolutePath;
+        var wwwrootPath = Path.Combine(AppContext.BaseDirectory, "wwwroot");
+
+        // "/" has no literal file on disk (the prerendered SPA shell is named
+        // _shell.html, not index.html) — treat it as a default-document alias
+        // for the shell, independent of SpaFallbackResolver's unknown-route logic.
+        if (requestPath == "/")
+        {
+            RespondWithFile(e, Path.Combine(wwwrootPath, "_shell.html"));
+            return;
+        }
+
+        var relativePath = requestPath.TrimStart('/');
+        var candidatePath = Path.Combine(wwwrootPath, relativePath);
+
+        var fallback = SpaFallbackResolver.ShouldFallbackToShell(
+            requestPath, p => File.Exists(Path.Combine(wwwrootPath, p.TrimStart('/'))));
+
+        RespondWithFile(e, fallback ? Path.Combine(wwwrootPath, "_shell.html") : candidatePath);
+    }
+
+    private void RespondWithFile(CoreWebView2WebResourceRequestedEventArgs e, string filePath)
+    {
+        // Manually serving files (instead of SetVirtualHostNameToFolderMapping,
+        // which normalizes and contains paths itself) means path traversal must
+        // be guarded explicitly here.
+        var wwwrootPath = Path.Combine(AppContext.BaseDirectory, "wwwroot");
+        var fullWwwroot = Path.GetFullPath(wwwrootPath);
+        var fullFilePath = Path.GetFullPath(filePath);
+        if (!fullFilePath.StartsWith(fullWwwroot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(fullFilePath, fullWwwroot, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        if (!File.Exists(fullFilePath)) return;
+
+        var mimeType = MimeTypesByExtension.TryGetValue(Path.GetExtension(fullFilePath), out var mapped)
+            ? mapped
+            : "application/octet-stream";
+
+        var stream = File.OpenRead(fullFilePath);
+        e.Response = Browser.CoreWebView2.Environment.CreateWebResourceResponse(
+            stream, 200, "OK", $"Content-Type: {mimeType}");
     }
 }
