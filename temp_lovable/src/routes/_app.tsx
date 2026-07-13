@@ -36,6 +36,7 @@ import { Progress } from "@/components/ui/progress";
 import { CASE, EVENTS } from "@/lib/case-data";
 import { useAppStore } from "@/lib/store";
 import { useTheme } from "@/hooks/use-theme";
+import { useNativeShell } from "@/hooks/use-native-shell";
 import { ProfileDialog } from "@/components/profile-dialog";
 import { HelpDialog } from "@/components/help-dialog";
 import { RelatedEvidencePanel } from "@/components/related-evidence-panel";
@@ -68,6 +69,7 @@ function AppLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { sidebarCollapsed, setSidebarCollapsed, profile } = useAppStore();
   const { theme, toggle: toggleTheme } = useTheme();
+  const { isNative, minimize, toggleMaximize, close: closeWindow } = useNativeShell();
   const [scanOpen, setScanOpen] = useState(false);
   const [scan, setScan] = useState(0);
   const [importOpen, setImportOpen] = useState(false);
@@ -397,6 +399,37 @@ function AppLayout() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+
+              {isNative && (
+                <>
+                  <span className="mx-1 hidden h-6 w-px bg-foreground/10 sm:block" />
+                  <button
+                    onClick={minimize}
+                    className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                    aria-label="Minimize"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={toggleMaximize}
+                    className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                    aria-label="Maximize"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <rect x="1.5" y="1.5" width="9" height="9" rx="1" stroke="currentColor" strokeWidth="1.5" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={closeWindow}
+                    className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-foreground/70 hover:bg-sev-critical/20 hover:text-sev-critical"
+                    aria-label="Close"
+                  >
+                    <Icon name="x" size={14} />
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </header>

@@ -76,6 +76,8 @@ public partial class MainWindow : Window
             // crashing the whole app.
         }
 
+        Browser.CoreWebView2.AddHostObjectToScript("shell", new NativeBridge(this));
+
         Browser.CoreWebView2.AddWebResourceRequestedFilter(
             "https://stormbreaker.local/*", CoreWebView2WebResourceContext.All);
         Browser.CoreWebView2.WebResourceRequested += OnWebResourceRequested;
