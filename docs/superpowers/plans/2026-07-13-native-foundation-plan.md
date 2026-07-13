@@ -4,7 +4,7 @@
 
 **Goal:** Ship a borderless native Windows `.exe` (WPF + WebView2) that renders the existing `temp_lovable` glassmorphism UI pixel-for-pixel, with native window drag/resize/minimize/maximize/close, and no runtime server dependency.
 
-**Architecture:** A WPF (.NET 8) window with `WindowStyle="None"` hosts a full-window `Microsoft.Web.WebView2.Wpf.WebView2` control. `temp_lovable` is built as a static SPA (TanStack Start's `spa` mode, Nitro disabled) and copied into `wwwroot`, served via `SetVirtualHostNameToFolderMapping` — no server process at runtime. Window drag uses WebView2's native `IsNonClientRegionSupportEnabled` + CSS `-webkit-app-region`, not Win32 message hooking. Resize uses WPF's `WindowChrome` with a margin trick so a thin native strip stays outside WebView2's hit-testing. A `NativeBridge` COM object exposes minimize/maximize/close to JS.
+**Architecture:** A WPF (.NET 8) window with `WindowStyle="None"` hosts a full-window `Microsoft.Web.WebView2.Wpf.WebView2` control. `temp_lovable` is built as a static SPA (TanStack Start's `spa` mode, Nitro disabled) and copied into `wwwroot`, served entirely through a `WebResourceRequested` handler on the `https://stormbreaker.local/` host — no server process at runtime, and (per a correction made during Task 5, see that task's note) no `SetVirtualHostNameToFolderMapping`, since that API silently disables `WebResourceRequested` on the same hostname. Window drag uses WebView2's native `IsNonClientRegionSupportEnabled` + CSS `-webkit-app-region`, not Win32 message hooking. Resize uses WPF's `WindowChrome` with a margin trick so a thin native strip stays outside WebView2's hit-testing. A `NativeBridge` COM object exposes minimize/maximize/close to JS.
 
 **Tech Stack:** .NET 8 WPF, `Microsoft.Web.WebView2.Wpf`, xUnit (for the one pure-logic unit), TanStack Start (`temp_lovable`), Tailwind v4.
 
@@ -12,7 +12,7 @@
 - `dotnet --version` → 8.0.422 is installed.
 - `temp_lovable` builds successfully with `nitro: false` + `tanstackStart.spa.enabled: true`, producing `dist/client/_shell.html` — verified by serving it with a plain static file server and loading it in a browser (client-side render worked; only unknown sub-routes like `/events` 404 against a bare static server, which Task 5 fixes inside WebView2 specifically).
 - The `node-server` Nitro preset also works (confirmed by running it) but was **not chosen** — the static SPA path avoids bundling a Node runtime and matches the approved design spec (`docs/superpowers/specs/2026-07-13-native-foundation-design.md`), which requires zero runtime server dependency.
-- WebView2 APIs used below (`IsNonClientRegionSupportEnabled`, `-webkit-app-region`, `SetVirtualHostNameToFolderMapping`, `AddWebResourceRequestedFilter`, `CreateWebResourceResponse`) were confirmed against current Microsoft Learn docs, not assumed from memory.
+- WebView2 APIs used below (`IsNonClientRegionSupportEnabled`, `-webkit-app-region`, `AddWebResourceRequestedFilter`, `CreateWebResourceResponse`) were confirmed against current Microsoft Learn docs, not assumed from memory. `SetVirtualHostNameToFolderMapping` was originally planned for Task 4 but removed during Task 5 — see that task's note: Microsoft Learn's `WebResourceRequested` how-to doc states plainly that `WebResourceRequested` isn't fired for a hostname registered via `SetVirtualHostNameToFolderMapping` (also `MicrosoftEdge/WebView2Feedback#4201`), which only becomes a problem once Task 5 needs to intercept requests on that same host — confirmed by live reproduction, not just the docs.
 - The WindowChrome-can't-resize-under-full-window-WebView2 problem is a known, documented WebView2 issue (MicrosoftEdge/WebView2Feedback #4538, #704); the fix is a margin on the WebView2 control matching `ResizeBorderThickness`, used in Task 6.
 
 **Deviations from the approved design spec, and why:**
@@ -20,6 +20,7 @@
 2. **Packaging produces a self-contained folder, not a literal single `.exe`.** `PublishSingleFile` has known extraction issues with the WebView2 loader; the folder still runs standalone with no separate runtime install, which is the actual requirement.
 3. **One xUnit test exists (`SpaFallbackResolverTests`), despite the spec saying "manual only."** It covers a pure, easy-to-get-subtly-wrong routing decision (SPA fallback) with no UI dependency — cheap and low-risk to keep automated. Everything else stays manual per spec.
 4. **The frontend build target changed from "just embed `temp_lovable`'s existing build" to "build in static SPA mode."** Discovered mid-planning: `temp_lovable`'s default build is server-rendered (Nitro/Cloudflare target) with no static `index.html`, which contradicts "no runtime server" from the spec. Task 1 fixes this at the source (`vite.config.ts`), confirmed working before writing the rest of the plan. Already discussed with and approved by the user.
+5. **`SetVirtualHostNameToFolderMapping` (originally in Task 4) was removed during Task 5.** Discovered mid-implementation, not mid-planning: it silently disables `WebResourceRequested` on the same hostname (Microsoft Learn docs + `MicrosoftEdge/WebView2Feedback#4201`, confirmed by live reproduction), which Task 5 needs for SPA fallback routing. Task 5 now serves the whole `wwwroot` tree by hand through `WebResourceRequested` alone, with an explicit path-containment check replacing the automatic containment `SetVirtualHostNameToFolderMapping` used to provide. See Task 5's note for the full explanation. This was caught and independently re-verified during that task's review cycle, not just taken on the implementer's word.
 
 ---
 
@@ -425,7 +426,9 @@ git commit -m "feat: build and embed temp_lovable via WebView2 virtual host mapp
 
 ### Task 5: SPA fallback routing (TDD)
 
-Deep-linking or reloading on a route other than `/` (e.g. `/events`) would otherwise 404, because `SetVirtualHostNameToFolderMapping` only serves files that physically exist. This task adds a `WebResourceRequested` interceptor that falls back to `_shell.html` for unknown paths, backed by a pure, unit-tested decision function.
+Deep-linking or reloading on a route other than `/` (e.g. `/events`) would otherwise 404, because a plain static file mapping only serves files that physically exist. This task adds a `WebResourceRequested` interceptor that falls back to `_shell.html` for unknown paths, backed by a pure, unit-tested decision function.
+
+> **Correction made while implementing this task, recorded here for anyone reading the plan before executing it:** the original version of this task assumed `SetVirtualHostNameToFolderMapping` (added in Task 4) would keep serving real static files while `WebResourceRequested` intercepted only the fallback case. That doesn't work — Microsoft's own docs state `WebResourceRequested` isn't fired at all for a hostname registered via `SetVirtualHostNameToFolderMapping` (`MicrosoftEdge/WebView2Feedback#4201`), confirmed independently by live reproduction (reverting to the original wiring, the fallback handler never fired even once, and `/events` returned a raw `ERR_FILE_NOT_FOUND`). Task 4's `Navigate("https://stormbreaker.local/_shell.html")` was also independently wrong — that path doesn't match any client route, so the SPA's own not-found page flashed even on a fresh load. The fix below removes `SetVirtualHostNameToFolderMapping` entirely and serves the whole `wwwroot` tree — real files, the `/` → `_shell.html` default-document alias, and the fallback — through one `WebResourceRequested` handler, navigating to `https://stormbreaker.local/` instead of `/_shell.html`. `CoreWebView2HostResourceAccessKind.DenyCors` is no longer available since the virtual host mapping is gone; this is inconsequential here since the manual responses never set `Access-Control-Allow-Origin`, so standard same-origin enforcement still applies and there's no other origin in play. Steps 1-5 (the TDD part, `SpaFallbackResolver` itself) are unchanged from the original plan — only Step 6's wiring changed.
 
 **Files:**
 - Create: `Stormbreaker.Shell.Tests/Stormbreaker.Shell.Tests.csproj`
@@ -525,35 +528,128 @@ public static class SpaFallbackResolver
 Run: `dotnet test Stormbreaker.Shell.Tests`
 Expected: PASS — 3 tests passed.
 
-- [ ] **Step 6: Wire the resolver into WebView2's WebResourceRequested event**
+- [ ] **Step 6: Serve wwwroot entirely through WebResourceRequested (replaces SetVirtualHostNameToFolderMapping)**
 
-Add to `MainWindow_Loaded` in `Stormbreaker.Shell/MainWindow.xaml.cs`, right after `SetVirtualHostNameToFolderMapping` and before `Navigate`:
+Replace the full contents of `Stormbreaker.Shell/MainWindow.xaml.cs` with:
 
 ```csharp
+// Stormbreaker.Shell/MainWindow.xaml.cs
+using System.IO;
+using System.Windows;
+using Microsoft.Web.WebView2.Core;
+
+namespace Stormbreaker.Shell;
+
+public partial class MainWindow : Window
+{
+    // WebView2 does not fire WebResourceRequested for a hostname registered via
+    // SetVirtualHostNameToFolderMapping (confirmed platform limitation, see
+    // MicrosoftEdge/WebView2Feedback#4201). So instead of layering the fallback
+    // interceptor on top of the virtual host mapping, this serves the whole
+    // wwwroot tree through WebResourceRequested directly, which both intercepts
+    // reliably and keeps the browser's URL (and therefore the SPA router's
+    // location.pathname) on the originally requested deep-link path.
+    private static readonly Dictionary<string, string> MimeTypesByExtension = new(StringComparer.OrdinalIgnoreCase)
+    {
+        [".html"] = "text/html",
+        [".js"] = "text/javascript",
+        [".mjs"] = "text/javascript",
+        [".css"] = "text/css",
+        [".json"] = "application/json",
+        [".svg"] = "image/svg+xml",
+        [".png"] = "image/png",
+        [".jpg"] = "image/jpeg",
+        [".jpeg"] = "image/jpeg",
+        [".ico"] = "image/x-icon",
+        [".woff"] = "font/woff",
+        [".woff2"] = "font/woff2",
+        [".webp"] = "image/webp",
+        [".map"] = "application/json",
+    };
+
+    public MainWindow()
+    {
+        InitializeComponent();
+        Loaded += MainWindow_Loaded;
+    }
+
+    private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (!WebView2RuntimeChecker.IsInstalled())
+        {
+            ErrorWindow.ShowMissingRuntime();
+            Close();
+            return;
+        }
+
+        var wwwrootPath = Path.Combine(AppContext.BaseDirectory, "wwwroot");
+        if (!File.Exists(Path.Combine(wwwrootPath, "_shell.html")))
+        {
+            ErrorWindow.ShowMissingContent();
+            Close();
+            return;
+        }
+
+        await Browser.EnsureCoreWebView2Async();
+
         Browser.CoreWebView2.AddWebResourceRequestedFilter(
             "https://stormbreaker.local/*", CoreWebView2WebResourceContext.All);
         Browser.CoreWebView2.WebResourceRequested += OnWebResourceRequested;
-```
 
-Add this method to the `MainWindow` class:
+        Browser.CoreWebView2.Navigate("https://stormbreaker.local/");
+    }
 
-```csharp
     private void OnWebResourceRequested(object? sender, CoreWebView2WebResourceRequestedEventArgs e)
     {
         var requestPath = new Uri(e.Request.Uri).AbsolutePath;
         var wwwrootPath = Path.Combine(AppContext.BaseDirectory, "wwwroot");
 
+        // "/" has no literal file on disk (the prerendered SPA shell is named
+        // _shell.html, not index.html) — treat it as a default-document alias
+        // for the shell, independent of SpaFallbackResolver's unknown-route logic.
+        if (requestPath == "/")
+        {
+            RespondWithFile(e, Path.Combine(wwwrootPath, "_shell.html"));
+            return;
+        }
+
+        var relativePath = requestPath.TrimStart('/');
+        var candidatePath = Path.Combine(wwwrootPath, relativePath);
+
         var fallback = SpaFallbackResolver.ShouldFallbackToShell(
-            requestPath,
-            p => File.Exists(Path.Combine(wwwrootPath, p.TrimStart('/'))));
+            requestPath, p => File.Exists(Path.Combine(wwwrootPath, p.TrimStart('/'))));
 
-        if (!fallback) return;
-
-        var stream = File.OpenRead(Path.Combine(wwwrootPath, "_shell.html"));
-        e.Response = Browser.CoreWebView2.Environment.CreateWebResourceResponse(
-            stream, 200, "OK", "Content-Type: text/html");
+        RespondWithFile(e, fallback ? Path.Combine(wwwrootPath, "_shell.html") : candidatePath);
     }
+
+    private void RespondWithFile(CoreWebView2WebResourceRequestedEventArgs e, string filePath)
+    {
+        // Manually serving files (instead of SetVirtualHostNameToFolderMapping,
+        // which normalizes and contains paths itself) means path traversal must
+        // be guarded explicitly here.
+        var wwwrootPath = Path.Combine(AppContext.BaseDirectory, "wwwroot");
+        var fullWwwroot = Path.GetFullPath(wwwrootPath);
+        var fullFilePath = Path.GetFullPath(filePath);
+        if (!fullFilePath.StartsWith(fullWwwroot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(fullFilePath, fullWwwroot, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        if (!File.Exists(fullFilePath)) return;
+
+        var mimeType = MimeTypesByExtension.TryGetValue(Path.GetExtension(fullFilePath), out var mapped)
+            ? mapped
+            : "application/octet-stream";
+
+        var stream = File.OpenRead(fullFilePath);
+        e.Response = Browser.CoreWebView2.Environment.CreateWebResourceResponse(
+            stream, 200, "OK", $"Content-Type: {mimeType}");
+    }
+}
 ```
+
+Note this also removes the `SetVirtualHostNameToFolderMapping` call Task 4 added — it's fully superseded by the `WebResourceRequested`-based serving above, per the correction note earlier in this task.
 
 - [ ] **Step 7: Run and verify the integration manually**
 
@@ -622,7 +718,7 @@ git commit -m "feat: borderless window with WindowChrome-based resize"
 
 - [ ] **Step 1: Enable non-client region support in WebView2**
 
-Add this line in `MainWindow_Loaded` in `Stormbreaker.Shell/MainWindow.xaml.cs`, immediately after `await Browser.EnsureCoreWebView2Async();` and before `SetVirtualHostNameToFolderMapping`:
+Add this line in `MainWindow_Loaded` in `Stormbreaker.Shell/MainWindow.xaml.cs`, immediately after `await Browser.EnsureCoreWebView2Async();` and before `AddWebResourceRequestedFilter` (per Task 5's actual implementation):
 
 ```csharp
         Browser.CoreWebView2.Settings.IsNonClientRegionSupportEnabled = true;
