@@ -443,7 +443,7 @@ Deep-linking or reloading on a route other than `/` (e.g. `/events`) would other
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
@@ -461,6 +461,8 @@ Deep-linking or reloading on a route other than `/` (e.g. `/events`) would other
 
 </Project>
 ```
+
+(`net8.0-windows`, not plain `net8.0` — a plain `net8.0` test project fails to restore against `Stormbreaker.Shell.csproj`, which targets `net8.0-windows` for WPF. Caught and fixed during implementation.)
 
 - [ ] **Step 2: Write the failing tests**
 
