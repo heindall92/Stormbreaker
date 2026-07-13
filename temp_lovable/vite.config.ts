@@ -7,9 +7,11 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
+  // Stormbreaker.Shell embeds this as a static SPA (no runtime server) — disable
+  // Nitro's SSR/Workers build and let TanStack Start prerender a static shell instead.
+  nitro: false,
   tanstackStart: {
-    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-    // nitro/vite builds from this
     server: { entry: "server" },
+    spa: { enabled: true },
   },
 });
