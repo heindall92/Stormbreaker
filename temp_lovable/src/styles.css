@@ -231,6 +231,14 @@
   background: var(--app-vignette);
 }
 
+@utility app-drag-region {
+  -webkit-app-region: drag;
+}
+
+@utility app-no-drag {
+  -webkit-app-region: no-drag;
+}
+
 /* Fallback for browsers without backdrop-filter */
 @supports not (backdrop-filter: blur(1px)) {
   .glass-panel { background: var(--glass-fallback); }

@@ -243,8 +243,8 @@ function AppLayout() {
       {/* Main column */}
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 px-4 pt-4 sm:px-6">
-          <div className="glass-pill mx-auto flex h-14 max-w-[1400px] items-center justify-between rounded-full px-3 pl-4">
-            <div className="flex min-w-0 items-center gap-3">
+          <div className="glass-pill app-drag-region mx-auto flex h-14 max-w-[1400px] items-center justify-between rounded-full px-3 pl-4">
+            <div className="app-no-drag flex min-w-0 items-center gap-3">
               <button
                 onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                 className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-foreground/70 hover:bg-foreground/5 hover:text-foreground lg:hidden"
@@ -261,7 +261,7 @@ function AppLayout() {
             </div>
 
             {/* Right cluster: Quick scan | Import | separator | Bell | Settings | Avatar */}
-            <div className="flex items-center gap-2">
+            <div className="app-no-drag flex items-center gap-2">
               <Button
                 size="sm"
                 variant="secondary"

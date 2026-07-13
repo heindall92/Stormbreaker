@@ -58,6 +58,8 @@ public partial class MainWindow : Window
 
         await Browser.EnsureCoreWebView2Async();
 
+        Browser.CoreWebView2.Settings.IsNonClientRegionSupportEnabled = true;
+
         Browser.CoreWebView2.AddWebResourceRequestedFilter(
             "https://stormbreaker.local/*", CoreWebView2WebResourceContext.All);
         Browser.CoreWebView2.WebResourceRequested += OnWebResourceRequested;
