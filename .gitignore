@@ -20,3 +20,11 @@ Desktop.ini
 
 # User specific files
 *.rsuser
+
+# temp_lovable frontend build artifacts
+temp_lovable/node_modules/
+temp_lovable/dist/
+temp_lovable/.output/
+temp_lovable/.wrangler/
+temp_lovable/tsconfig.tsbuildinfo
+temp_lovable/.workspace/
