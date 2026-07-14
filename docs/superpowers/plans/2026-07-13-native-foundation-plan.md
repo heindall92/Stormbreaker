@@ -964,6 +964,18 @@ git commit -m "feat: native window controls (minimize/maximize/close) via WebVie
 Run: `dotnet publish Stormbreaker.Shell -c Release -r win-x64 --self-contained true -o publish`
 Expected: build succeeds (this also triggers `BuildFrontend`, so `publish/wwwroot/_shell.html` is present), producing `publish/Stormbreaker.exe` plus its dependency DLLs. This is a self-contained folder, not a single file — `PublishSingleFile` is intentionally not used here because it has known extraction issues with the WebView2 loader.
 
+> **Bug found and fixed while executing this step:** `BuildFrontend`'s `Copy` task (Task 4) writes into `$(OutDir)wwwroot`, which is correct for `dotnet build`/`dotnet run`, but those files were never registered as publish-participating items — `dotnet publish -o publish` silently produced `publish/Stormbreaker.exe` with no `wwwroot` at all, which would have hit `ErrorWindow.ShowMissingContent()` on launch. Fixed by adding a second target to `Stormbreaker.Shell.csproj`, `AddFrontendAssetsToPublish` (`AfterTargets="ComputeFilesToPublish"`), that registers the same `@(FrontendAssets)` items via `ResolvedFileToPublish` — the standard SDK extension point for extra publish-time files:
+> ```xml
+> <Target Name="AddFrontendAssetsToPublish" AfterTargets="ComputeFilesToPublish">
+>   <ItemGroup>
+>     <ResolvedFileToPublish Include="@(FrontendAssets)">
+>       <RelativePath>wwwroot\%(RecursiveDir)%(Filename)%(Extension)</RelativePath>
+>       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+>     </ResolvedFileToPublish>
+>   </ItemGroup>
+> </Target>
+> ```
+
 - [ ] **Step 2: Verify it runs standalone**
 
 Run: `./publish/Stormbreaker.exe` (from a terminal that has NOT run `dotnet run`, `npm run dev`, or any other dev server — the published exe must not depend on any of that)
