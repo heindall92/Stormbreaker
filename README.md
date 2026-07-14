@@ -1,11 +1,13 @@
 # ⚡ Stormbreaker — Consola de Análisis Forense Avanzado DFIR
 [![License: MIT](https://img.shields.io/badge/Licencia-MIT-blue.svg)](LICENSE)
-[![Platform: WPF .NET](https://img.shields.io/badge/Plataforma-WPF%20%7C%20.NET%208.0--windows-blueviolet.svg)](Stormbreaker)
+[![Platform: WPF + WebView2](https://img.shields.io/badge/Plataforma-WPF%20%2B%20WebView2%20%7C%20.NET%208.0--windows-blueviolet.svg)](Stormbreaker.Shell)
 [![Att&ck: MITRE](https://img.shields.io/badge/ATT%26CK-MITRE%20Mapped-red.svg)](https://attack.mitre.org)
 
-**Stormbreaker** es una consola de triaje y respuesta ante incidentes (IR / DFIR) de alto rendimiento para escritorio, desarrollada en WPF y .NET 8.0. Actúa como cliente nativo de Windows para la suite **Muninn DFIR Suite**, permitiendo parsear, correlacionar y visualizar registros de eventos de Windows, colmenas del Registro, USN Journal y registros NTFS MFT.
+**Stormbreaker** es una consola de triaje y respuesta ante incidentes (IR / DFIR) de alto rendimiento para escritorio. Actúa como cliente nativo de Windows para la suite **Muninn DFIR Suite**, permitiendo parsear, correlacionar y visualizar registros de eventos de Windows, colmenas del Registro, USN Journal y registros NTFS MFT.
 
 Diseñada bajo una estética oscura premium de glassmorfismo (inspirada en Aero y Mica de Windows 11), Stormbreaker integra asistencia de IA local (a través de Ollama) para transmitir análisis en tiempo real y construir líneas de tiempo de la cadena de ataque mapeadas directamente al marco de referencia **MITRE ATT&CK®**.
+
+> **Estado actual:** la fundación nativa (ventana WPF sin marco + WebView2 alojando la UI, arrastre/resize/minimizar/maximizar/cerrar nativos, empaquetado standalone) está completa y verificada — ver [`docs/superpowers/specs/2026-07-13-native-foundation-design.md`](docs/superpowers/specs/2026-07-13-native-foundation-design.md) y [`docs/superpowers/plans/2026-07-13-native-foundation-plan.md`](docs/superpowers/plans/2026-07-13-native-foundation-plan.md). Las capacidades forenses descritas abajo (parseo real de EVTX/MFT/Registro, correlación MITRE, copiloto IA) son la visión del producto completo y **aún no están implementadas**; la consola corre hoy sobre datos de demostración.
 
 ---
 
@@ -33,33 +35,24 @@ Stormbreaker implementa estilos de control nativos WPF optimizados:
 
 ## 📂 Arquitectura del Proyecto
 
-El desarrollo sigue el patrón de arquitectura MVVM (Model-View-ViewModel):
+Stormbreaker es un shell nativo de Windows (WPF + WebView2) que aloja una SPA (TanStack Start + React 19 + Tailwind v4) construida como sitio estático — sin depender de ningún servidor en tiempo de ejecución:
 
 ```
-App.xaml / MainWindow.xaml
- └── MainViewModel.cs
-      ├── Views
-      │    ├── DashboardView.xaml
-      │    ├── EventsView.xaml
-      │    ├── MftView.xaml
-      │    ├── TimelineView.xaml
-      │    ├── CorrelationView.xaml
-      │    └── AiView.xaml
-      ├── Modelos Forenses
-      └── Conversores y Estilos
+Stormbreaker.Shell/            — shell nativo (.NET 8, WPF)
+ ├── MainWindow.xaml(.cs)      — ventana sin marco, host del WebView2, servidor de archivos
+ │                                estáticos (WebResourceRequested), drag/resize nativos
+ ├── NativeBridge.cs           — puente COM: minimizar/maximizar/cerrar expuestos a JS
+ ├── SpaFallbackResolver.cs    — lógica de fallback de rutas (con tests, Stormbreaker.Shell.Tests/)
+ ├── WebView2RuntimeChecker.cs / ErrorWindow.xaml(.cs) — manejo de fallos de arranque
+ └── wwwroot/                  — build estático de temp_lovable, copiado en cada compilación
+
+temp_lovable/                  — UI glass (TanStack Start, Tailwind v4), origen del diseño visual
+ ├── src/routes/                — 8 vistas: Dashboard, Events, MFT, Timeline, Correlation,
+ │                                 AI Analyst, Reports, Settings (datos de demostración)
+ └── src/hooks/use-native-shell.ts — detecta el shell nativo y expone los controles de ventana
 ```
 
-### Componentes Clave
-
-1.  **MainWindow.xaml:** Layout raíz que contiene el panel de navegación colapsable animado, la alineación dinámica del encabezado, conversores de vista y modales interactivos.
-2.  **ViewModels/MainViewModel.cs:** Coordina la vista activa, gestiona el hilo de streaming de Ollama, orquesta los simuladores de escaneo rápido y expone los comandos de interfaz.
-3.  **Views/:** Módulos forenses autocontenidos:
-    *   `DashboardView`: Panel gráfico con KPIs, donuts de severidad y actividad de artefactos.
-    *   `EventsView`: Rejilla filtrable y expandible con metadatos de eventos y técnicas MITRE.
-    *   `MftView`: Tabla de auditoría NTFS MFT con alertas automáticas de timestomping.
-    *   `CorrelationView`: Reconstrucción de la cadena de ataque en fases lógicas.
-    *   `AiView`: Panel interactivo de Ollama con streaming de tokens en tiempo real.
-4.  **Models/:** Estructuras de datos normalizadas (`ForensicEvent`, `MftRecord`, `IocRecord`, etc.) para data-binding.
+Detalle completo de las decisiones de arquitectura (por qué WebView2 en vez de XAML puro, por qué se abandonó `SetVirtualHostNameToFolderMapping`, etc.) en [`docs/superpowers/specs/2026-07-13-native-foundation-design.md`](docs/superpowers/specs/2026-07-13-native-foundation-design.md) y [`docs/superpowers/plans/2026-07-13-native-foundation-plan.md`](docs/superpowers/plans/2026-07-13-native-foundation-plan.md).
 
 ---
 
@@ -68,19 +61,27 @@ App.xaml / MainWindow.xaml
 ### Requisitos
 
 *   **.NET 8.0 SDK** o superior.
+*   **Node.js** (para compilar `temp_lovable`; la compilación del frontend se dispara automáticamente al hacer `dotnet build`/`dotnet run`).
 *   Microsoft Windows 10/11 (64-bit).
 *   *Opcional:* Una instancia local de **Ollama** activa.
 
 ### Compilación y Ejecución
 
-1. Abre tu terminal de Windows (CMD o PowerShell) en la raíz del proyecto:
+1. Instala las dependencias del frontend (solo la primera vez):
    ```cmd
-   cd Stormbreaker
+   cd temp_lovable
+   npm install
+   cd ..
    ```
-2. Ejecuta el compilador y lanza el binario:
+2. Ejecuta el shell nativo desde la raíz del repositorio (compila el frontend y lo empaqueta automáticamente):
    ```cmd
-   dotnet run
+   dotnet run --project Stormbreaker.Shell
    ```
+3. Para un `.exe` standalone (sin SDK de .NET ni Node instalados en la máquina destino):
+   ```cmd
+   dotnet publish Stormbreaker.Shell -c Release -r win-x64 --self-contained true -o publish
+   ```
+   El resultado en `publish/Stormbreaker.exe` corre de forma independiente.
 
 ---
 
