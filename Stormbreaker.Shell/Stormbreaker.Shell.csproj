@@ -14,29 +14,11 @@
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4078.44" />
   </ItemGroup>
 
-  <Target Name="BuildFrontend" BeforeTargets="Build;Publish">
-    <Exec Command="npm run build" WorkingDirectory="..\temp_lovable" />
-    <ItemGroup>
-      <FrontendAssets Include="..\temp_lovable\dist\client\**\*.*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(FrontendAssets)"
-          DestinationFiles="@(FrontendAssets->'$(OutDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" />
-  </Target>
-
-  <!--
-    dotnet publish (especially with -o redirecting the output folder) does not carry
-    files that BuildFrontend copied into $(OutDir) over into the publish directory,
-    because they were never registered as publish-participating items. Register them
-    explicitly via ResolvedFileToPublish so `dotnet publish -o publish` also produces
-    publish/wwwroot alongside Stormbreaker.exe.
-  -->
-  <Target Name="AddFrontendAssetsToPublish" AfterTargets="ComputeFilesToPublish">
-    <ItemGroup>
-      <ResolvedFileToPublish Include="@(FrontendAssets)">
-        <RelativePath>wwwroot\%(RecursiveDir)%(Filename)%(Extension)</RelativePath>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </ResolvedFileToPublish>
-    </ItemGroup>
-  </Target>
+  <ItemGroup>
+    <Content Include="wwwroot\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
 
 </Project>

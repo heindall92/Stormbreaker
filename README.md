@@ -7,7 +7,7 @@
 
 Diseñada bajo una estética oscura premium de glassmorfismo (inspirada en Aero y Mica de Windows 11), Stormbreaker integra asistencia de IA local (a través de Ollama) para transmitir análisis en tiempo real y construir líneas de tiempo de la cadena de ataque mapeadas directamente al marco de referencia **MITRE ATT&CK®**.
 
-> **Estado actual:** la fundación nativa (ventana WPF sin marco + WebView2 alojando la UI, arrastre/resize/minimizar/maximizar/cerrar nativos, empaquetado standalone) está completa y verificada — ver [`docs/superpowers/specs/2026-07-13-native-foundation-design.md`](docs/superpowers/specs/2026-07-13-native-foundation-design.md) y [`docs/superpowers/plans/2026-07-13-native-foundation-plan.md`](docs/superpowers/plans/2026-07-13-native-foundation-plan.md). Las capacidades forenses descritas abajo (parseo real de EVTX/MFT/Registro, correlación MITRE, copiloto IA) son la visión del producto completo y **aún no están implementadas**; la consola corre hoy sobre datos de demostración.
+> **Estado actual:** la fundación nativa (ventana WPF sin marco + WebView2 alojando la UI, arrastre/resize/minimizar/maximizar/cerrar nativos, empaquetado standalone) está completa y verificada. Las capacidades forenses descritas abajo (parseo real de EVTX/MFT/Registro, correlación MITRE, copiloto IA) son la visión del producto completo y **aún no están implementadas**; la consola corre hoy sobre datos de demostración.
 
 ---
 
@@ -35,7 +35,7 @@ Stormbreaker implementa estilos de control nativos WPF optimizados:
 
 ## 📂 Arquitectura del Proyecto
 
-Stormbreaker es un shell nativo de Windows (WPF + WebView2) que aloja una SPA (TanStack Start + React 19 + Tailwind v4) construida como sitio estático — sin depender de ningún servidor en tiempo de ejecución:
+Stormbreaker es un shell nativo de Windows (WPF + WebView2) que aloja una SPA (TanStack Start + React 19 + Tailwind v4) embebida como sitio estático — sin depender de ningún servidor en tiempo de ejecución:
 
 ```
 Stormbreaker.Shell/            — shell nativo (.NET 8, WPF)
@@ -44,15 +44,8 @@ Stormbreaker.Shell/            — shell nativo (.NET 8, WPF)
  ├── NativeBridge.cs           — puente COM: minimizar/maximizar/cerrar expuestos a JS
  ├── SpaFallbackResolver.cs    — lógica de fallback de rutas (con tests, Stormbreaker.Shell.Tests/)
  ├── WebView2RuntimeChecker.cs / ErrorWindow.xaml(.cs) — manejo de fallos de arranque
- └── wwwroot/                  — build estático de temp_lovable, copiado en cada compilación
-
-temp_lovable/                  — UI glass (TanStack Start, Tailwind v4), origen del diseño visual
- ├── src/routes/                — 8 vistas: Dashboard, Events, MFT, Timeline, Correlation,
- │                                 AI Analyst, Reports, Settings (datos de demostración)
- └── src/hooks/use-native-shell.ts — detecta el shell nativo y expone los controles de ventana
+ └── wwwroot/                  — build estático del frontend embebido en la aplicación
 ```
-
-Detalle completo de las decisiones de arquitectura (por qué WebView2 en vez de XAML puro, por qué se abandonó `SetVirtualHostNameToFolderMapping`, etc.) en [`docs/superpowers/specs/2026-07-13-native-foundation-design.md`](docs/superpowers/specs/2026-07-13-native-foundation-design.md) y [`docs/superpowers/plans/2026-07-13-native-foundation-plan.md`](docs/superpowers/plans/2026-07-13-native-foundation-plan.md).
 
 ---
 
@@ -61,27 +54,20 @@ Detalle completo de las decisiones de arquitectura (por qué WebView2 en vez de 
 ### Requisitos
 
 *   **.NET 8.0 SDK** o superior.
-*   **Node.js** (para compilar `temp_lovable`; la compilación del frontend se dispara automáticamente al hacer `dotnet build`/`dotnet run`).
 *   Microsoft Windows 10/11 (64-bit).
 *   *Opcional:* Una instancia local de **Ollama** activa.
 
 ### Compilación y Ejecución
 
-1. Instala las dependencias del frontend (solo la primera vez):
-   ```cmd
-   cd temp_lovable
-   npm install
-   cd ..
-   ```
-2. Ejecuta el shell nativo desde la raíz del repositorio (compila el frontend y lo empaqueta automáticamente):
+1. Ejecuta la aplicación directamente desde la raíz del repositorio:
    ```cmd
    dotnet run --project Stormbreaker.Shell
    ```
-3. Para un `.exe` standalone (sin SDK de .NET ni Node instalados en la máquina destino):
+2. Para compilar un ejecutable `.exe` standalone (autónomo y sin dependencias externas en la máquina destino):
    ```cmd
    dotnet publish Stormbreaker.Shell -c Release -r win-x64 --self-contained true -o publish
    ```
-   El resultado en `publish/Stormbreaker.exe` corre de forma independiente.
+   El resultado compilado se generará en `publish/Stormbreaker.exe`.
 
 ---
 

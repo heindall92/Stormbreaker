@@ -61,7 +61,7 @@ public partial class MainWindow : Window
         // WindowChrome CaptionHeight="0" (MainWindow.xaml) removes the native title
         // bar's drag area entirely, so nothing outside the WebView2 surface is
         // draggable by default. Enabling non-client region support lets the CSS
-        // app-drag-region/app-no-drag utilities (temp_lovable/src/styles.css) mark
+        // app-drag-region/app-no-drag utilities (frontend/src/styles.css) mark
         // parts of the web content as the drag/no-drag surface instead, restoring
         // window dragging via the custom title-bar pill rendered in HTML.
         try
